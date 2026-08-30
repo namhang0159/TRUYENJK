@@ -194,7 +194,7 @@ export default function ReadingPage() {
         storyId={chapter.story_id} 
         chapterId={chapter.id} 
         chapterTitle={chapter.title} 
-        initialProgress={chapter.progress_seconds || 0} 
+        initialProgress={(chapter as any).progress_seconds || 0} 
       />
 
       {/* VIP Modal */}

@@ -25,7 +25,7 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
         <motion.div 
           initial={{ opacity: 0, filter: 'blur(10px)' }}
           animate={{ opacity: 1, filter: 'blur(0px)' }}
-          transition={{ duration: 0.8, ease: [0.16, 1, 0.3, 1] }}
+          transition={{ duration: 0.8, ease: [0.16, 1, 0.3, 1] as const }}
           className="text-center space-y-6 max-w-sm px-6"
         >
           <div className="mx-auto flex items-center justify-center mb-6">
@@ -133,7 +133,7 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
         <motion.div 
           initial={{ opacity: 0, y: 10 }}
           animate={{ opacity: 1, y: 0 }}
-          transition={{ duration: 0.6, ease: [0.16, 1, 0.3, 1] }}
+          transition={{ duration: 0.6, ease: [0.16, 1, 0.3, 1] as const }}
           className="p-6 md:p-12 lg:p-16 max-w-[1600px] mx-auto pt-24 md:pt-12 min-h-full flex flex-col"
         >
           {children}

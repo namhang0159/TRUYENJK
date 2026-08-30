@@ -56,7 +56,7 @@ export default function AdminTransactionsPage() {
         </div>
         
         <div className="flex flex-col sm:flex-row gap-[1px] w-full lg:w-auto bg-zinc-900 border border-zinc-900">
-          <Select value={typeFilter} onValueChange={(v) => { setTypeFilter(v); setPage(1); }}>
+          <Select value={typeFilter} onValueChange={(v) => { setTypeFilter(v || "all"); setPage(1); }}>
             <SelectTrigger className="w-full sm:w-48 bg-black border-none focus:ring-0 h-12 text-zinc-500 rounded-none font-mono text-xs tracking-widest uppercase">
               <SelectValue placeholder="LOẠI GIAO DỊCH" />
             </SelectTrigger>
@@ -68,7 +68,7 @@ export default function AdminTransactionsPage() {
               <SelectItem value="WITHDRAW">Rút Tiền</SelectItem>
             </SelectContent>
           </Select>
-          <Select value={statusFilter} onValueChange={(v) => { setStatusFilter(v); setPage(1); }}>
+          <Select value={statusFilter} onValueChange={(v) => { setStatusFilter(v || "all"); setPage(1); }}>
             <SelectTrigger className="w-full sm:w-48 bg-black border-none focus:ring-0 h-12 text-zinc-500 rounded-none font-mono text-xs tracking-widest uppercase">
               <SelectValue placeholder="TRẠNG THÁI" />
             </SelectTrigger>

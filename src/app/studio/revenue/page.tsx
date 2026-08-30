@@ -16,7 +16,7 @@ import {
   Pie,
   Cell
 } from 'recharts';
-import { Coins, TrendingUp, Download, Calendar, Loader2, BookOpen, Gift, Wallet, Clock, CheckCircle2, XCircle, ArrowRightRight } from 'lucide-react';
+import { Coins, TrendingUp, Download, Calendar, Loader2, BookOpen, Gift, Wallet, Clock, CheckCircle2, XCircle } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
@@ -34,7 +34,7 @@ const containerVariants = {
 
 const itemVariants = {
   hidden: { opacity: 0, y: 20 },
-  show: { opacity: 1, y: 0, transition: { type: "spring", stiffness: 300, damping: 24 } }
+  show: { opacity: 1, y: 0, transition: { type: "spring" as const, stiffness: 300, damping: 24 } }
 };
 
 export default function RevenuePage() {
@@ -404,7 +404,7 @@ export default function RevenuePage() {
                         fill="#8884d8"
                         dataKey="total"
                         nameKey="item_name"
-                        label={({ name, percent }) => `${name} ${(percent * 100).toFixed(0)}%`}
+                        label={({ name, percent = 0 }: any) => `${name} ${(percent * 100).toFixed(0)}%`}
                       >
                         {revenueByGift.map((entry: any, index: number) => (
                           <Cell key={`cell-${index}`} fill={COLORS[index % COLORS.length]} />
@@ -413,7 +413,7 @@ export default function RevenuePage() {
                       <Tooltip 
                         contentStyle={{ borderRadius: '0px', border: '1px solid #27272a', backgroundColor: '#000', color: '#fff' }} 
                         itemStyle={{ color: '#a1a1aa', fontFamily: 'monospace', fontSize: '12px' }}
-                        formatter={(value: number) => [`${value} Xu`, 'Doanh thu']} 
+                        formatter={(value: any) => [`${value} Xu`, 'Doanh thu']} 
                       />
                     </PieChart>
                   </ResponsiveContainer>

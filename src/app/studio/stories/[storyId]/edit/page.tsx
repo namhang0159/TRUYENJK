@@ -61,7 +61,7 @@ export default function EditStoryPage() {
     watch,
     formState: { errors, isSubmitting },
   } = useForm<StoryFormValues>({
-    resolver: zodResolver(storySchema),
+    resolver: zodResolver(storySchema) as any,
     defaultValues: {
       status: "ONGOING",
       visibility: "PRIVATE",

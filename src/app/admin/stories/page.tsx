@@ -51,7 +51,7 @@ export default function AdminStoriesPage() {
 
   const itemVariants = {
     hidden: { opacity: 0, y: 5 },
-    show: { opacity: 1, y: 0, transition: { duration: 0.3, ease: [0.16, 1, 0.3, 1] } }
+    show: { opacity: 1, y: 0, transition: { duration: 0.3, ease: [0.16, 1, 0.3, 1] as const } }
   };
 
   return (
@@ -81,7 +81,7 @@ export default function AdminStoriesPage() {
               }}
             />
           </div>
-          <Select value={statusFilter} onValueChange={(v) => { setStatusFilter(v); setPage(1); }}>
+          <Select value={statusFilter} onValueChange={(v) => { setStatusFilter(v || "all"); setPage(1); }}>
             <SelectTrigger className="w-full sm:w-36 bg-transparent border-0 border-b border-zinc-800 focus:border-white h-10 text-white rounded-none focus:ring-0 px-0 uppercase tracking-wider">
               <SelectValue placeholder="Trạng Thái" />
             </SelectTrigger>
@@ -92,7 +92,7 @@ export default function AdminStoriesPage() {
               <SelectItem value="PAUSED" className="focus:bg-zinc-900 focus:text-white rounded-none">Tạm Ngưng</SelectItem>
             </SelectContent>
           </Select>
-          <Select value={visibilityFilter} onValueChange={(v) => { setVisibilityFilter(v); setPage(1); }}>
+          <Select value={visibilityFilter} onValueChange={(v) => { setVisibilityFilter(v || "all"); setPage(1); }}>
             <SelectTrigger className="w-full sm:w-40 bg-transparent border-0 border-b border-zinc-800 focus:border-white h-10 text-white rounded-none focus:ring-0 px-0 uppercase tracking-wider">
               <SelectValue placeholder="Hiển Thị" />
             </SelectTrigger>

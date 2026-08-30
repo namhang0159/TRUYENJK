@@ -110,7 +110,7 @@ export default function AdminRevenuePage() {
                   <Tooltip 
                     contentStyle={{ backgroundColor: '#000', borderColor: '#27272a', borderRadius: 0, fontFamily: 'monospace' }}
                     itemStyle={{ fontFamily: 'monospace' }}
-                    formatter={(value: number) => [`${value.toLocaleString('vi-VN')} VNĐ`, '']}
+                    formatter={(value: any) => [`${value.toLocaleString('vi-VN')} VNĐ`, '']}
                   />
                   <Legend iconType="circle" wrapperStyle={{ paddingTop: '20px' }} />
                   <Line type="monotone" name="Thu (Nạp)" dataKey="deposit" stroke="#22c55e" strokeWidth={2} dot={false} activeDot={{ r: 6 }} />

@@ -66,7 +66,7 @@ export default function EditChapterPage() {
     setValue,
     formState: { errors, isSubmitting },
   } = useForm<ChapterFormValues>({
-    resolver: zodResolver(chapterSchema),
+    resolver: zodResolver(chapterSchema) as any,
     defaultValues: {
       status: "DRAFT",
       type: "FREE",
@@ -222,7 +222,6 @@ export default function EditChapterPage() {
                             mode="single"
                             selected={field.value}
                             onSelect={field.onChange}
-                            initialFocus
                             className="bg-black text-white"
                           />
                         </PopoverContent>

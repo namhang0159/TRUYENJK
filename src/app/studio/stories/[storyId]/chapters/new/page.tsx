@@ -59,7 +59,7 @@ export default function NewChapterPage() {
     setValue,
     formState: { errors, isSubmitting },
   } = useForm<ChapterFormValues>({
-    resolver: zodResolver(chapterSchema),
+    resolver: zodResolver(chapterSchema) as any,
     defaultValues: {
       status: "DRAFT",
       type: "FREE",

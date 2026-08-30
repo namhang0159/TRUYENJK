@@ -38,8 +38,7 @@ export function TiptapEditor({ content, onChange }: EditorProps) {
     if (editor && content !== editor.getHTML()) {
       // Check if the content is just an empty paragraph to avoid resetting empty state
       if (content === "" && editor.getHTML() === "<p></p>") return;
-      console.log("TiptapEditor calling setContent");
-      editor.commands.setContent(content, { emitUpdate: false });
+      editor.commands.setContent(content, { emitUpdate: false } as any);
     }
   }, [content, editor]);
 

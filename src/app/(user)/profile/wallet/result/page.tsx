@@ -7,7 +7,9 @@ import { Button } from "@/components/ui/button";
 import Link from "next/link";
 import axiosInstance from "@/lib/axios";
 
-export default function VNPayResultPage() {
+import { Suspense } from 'react';
+
+function VNPayResultContent() {
   const searchParams = useSearchParams();
   const router = useRouter();
   const [status, setStatus] = useState<"loading" | "success" | "error">("loading");
@@ -86,5 +88,20 @@ export default function VNPayResultPage() {
         )}
       </div>
     </div>
+  );
+}
+
+export default function VNPayResultPage() {
+  return (
+    <Suspense fallback={
+      <div className="flex flex-col items-center justify-center min-h-[60vh] px-4">
+        <div className="max-w-md w-full bg-zinc-900 border border-zinc-800 p-8 rounded-2xl shadow-xl text-center flex flex-col items-center space-y-4">
+          <Loader2 className="w-16 h-16 animate-spin text-blue-500" />
+          <h2 className="text-xl font-bold text-white">Đang tải...</h2>
+        </div>
+      </div>
+    }>
+      <VNPayResultContent />
+    </Suspense>
   );
 }

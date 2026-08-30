@@ -12,7 +12,7 @@ import { motion } from "framer-motion";
 
 const podiumVariants = {
   hidden: { opacity: 0, y: 50 },
-  show: { opacity: 1, y: 0, transition: { type: "spring", stiffness: 200, damping: 20 } },
+  show: { opacity: 1, y: 0, transition: { type: "spring" as const, stiffness: 200, damping: 20 } },
 };
 
 const listContainerVariants = {
@@ -25,7 +25,7 @@ const listContainerVariants = {
 
 const listItemVariants = {
   hidden: { opacity: 0, x: -20 },
-  show: { opacity: 1, x: 0, transition: { type: "spring", stiffness: 300, damping: 24 } },
+  show: { opacity: 1, x: 0, transition: { type: "spring" as const, stiffness: 300, damping: 24 } },
 };
 
 export default function RankingsPage() {

@@ -2,7 +2,7 @@
 
 import React, { useState } from 'react';
 import { Button } from '@/components/ui/button';
-import { Search, Ban, CheckCircle2, MoreVertical, Coins, ShieldAlert, ArrowRight } from 'lucide-react';
+import { Search, Ban, CheckCircle2, MoreVertical, Coins, ShieldAlert, ArrowRight, Activity } from 'lucide-react';
 import { Input } from '@/components/ui/input';
 import { useAdminUsers, useAdminUserDetail, useToggleUserStatus, useManualTransaction } from '@/hooks/use-admin';
 import { Skeleton } from '@/components/ui/skeleton';
@@ -90,7 +90,7 @@ export default function AdminUsersPage() {
               }}
             />
           </div>
-          <Select value={statusFilter} onValueChange={(v) => { setStatusFilter(v); setPage(1); }}>
+          <Select value={statusFilter} onValueChange={(v) => { setStatusFilter(v || "all"); setPage(1); }}>
             <SelectTrigger className="w-full sm:w-40 bg-black border-none focus:ring-0 h-12 text-zinc-500 rounded-none font-mono text-xs tracking-widest uppercase">
               <SelectValue placeholder="TRẠNG THÁI" />
             </SelectTrigger>
@@ -100,7 +100,7 @@ export default function AdminUsersPage() {
               <SelectItem value="inactive">Đình Chỉ</SelectItem>
             </SelectContent>
           </Select>
-          <Select value={verifiedFilter} onValueChange={(v) => { setVerifiedFilter(v); setPage(1); }}>
+          <Select value={verifiedFilter} onValueChange={(v) => { setVerifiedFilter(v || "all"); setPage(1); }}>
             <SelectTrigger className="w-full sm:w-48 bg-black border-none focus:ring-0 h-12 text-zinc-500 rounded-none font-mono text-xs tracking-widest uppercase">
               <SelectValue placeholder="XÁC THỰC" />
             </SelectTrigger>
@@ -277,7 +277,7 @@ export default function AdminUsersPage() {
                       <div className="space-y-4">
                         <div className="space-y-2">
                           <Label className="text-zinc-600 font-mono text-[10px] uppercase tracking-widest">Thao Tác</Label>
-                          <Select value={txType} onValueChange={(v: 'ADD' | 'SUBTRACT') => setTxType(v)}>
+                          <Select value={txType} onValueChange={(v: any) => setTxType(v || 'ADD')}>
                             <SelectTrigger className="bg-zinc-950 border-zinc-900 h-12 rounded-none text-white font-mono text-[10px] tracking-widest uppercase">
                               <SelectValue />
                             </SelectTrigger>
