@@ -1,5 +1,6 @@
 "use client";
 
+import { Variants } from "framer-motion";
 import React, { useState } from 'react';
 import Link from 'next/link';
 import { useAdminAudioStories } from '@/hooks/use-admin';
@@ -25,7 +26,7 @@ export default function AdminAudioPage() {
     return () => clearTimeout(timer);
   }, [search]);
 
-  const containerVariants = {
+  const containerVariants: Variants = {
     hidden: { opacity: 0 },
     show: {
       opacity: 1,
@@ -33,7 +34,7 @@ export default function AdminAudioPage() {
     }
   };
 
-  const itemVariants = {
+  const itemVariants: Variants = {
     hidden: { opacity: 0, y: 10 },
     show: { opacity: 1, y: 0, transition: { duration: 0.3 } }
   };

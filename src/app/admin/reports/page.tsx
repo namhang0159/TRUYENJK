@@ -1,5 +1,6 @@
 "use client";
 
+import { Variants } from "framer-motion";
 import React, { useState, useMemo } from 'react';
 import { Button } from '@/components/ui/button';
 import { ShieldAlert, CheckCircle, XCircle, Flag, Hash, Clock, FileText, MessageSquare } from 'lucide-react';
@@ -23,14 +24,14 @@ export default function AdminReportsPage() {
     }
   };
 
-  const containerVariants = {
+  const containerVariants: Variants = {
     hidden: { opacity: 0 },
     show: { opacity: 1, transition: { staggerChildren: 0.03 } }
   };
 
-  const itemVariants = {
+  const itemVariants: Variants = {
     hidden: { opacity: 0, y: 5 },
-    show: { opacity: 1, y: 0, transition: { duration: 0.3, ease: [0.16, 1, 0.3, 1] as const } }
+    show: { opacity: 1, y: 0, transition: { duration: 0.3, ease: [0.16, 1, 0.3, 1] } }
   };
 
   // Group reports by date

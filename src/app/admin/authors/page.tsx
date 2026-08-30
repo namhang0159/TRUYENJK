@@ -1,5 +1,6 @@
 "use client";
 
+import { Variants } from "framer-motion";
 import React, { useState } from 'react';
 import { Button } from '@/components/ui/button';
 import { ShieldAlert, CheckCircle, XCircle, Users, Hash, Clock, Link as LinkIcon, Phone } from 'lucide-react';
@@ -27,7 +28,7 @@ export default function AdminAuthorsPage() {
     }
   };
 
-  const containerVariants = {
+  const containerVariants: Variants = {
     hidden: { opacity: 0 },
     show: {
       opacity: 1,
@@ -35,9 +36,9 @@ export default function AdminAuthorsPage() {
     }
   };
 
-  const itemVariants = {
+  const itemVariants: Variants = {
     hidden: { opacity: 0, y: 5 },
-    show: { opacity: 1, y: 0, transition: { duration: 0.3, ease: [0.16, 1, 0.3, 1] as const } }
+    show: { opacity: 1, y: 0, transition: { duration: 0.3, ease: [0.16, 1, 0.3, 1] } }
   };
 
   return (

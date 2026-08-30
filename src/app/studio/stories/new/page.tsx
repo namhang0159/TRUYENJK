@@ -54,7 +54,7 @@ export default function NewStoryPage() {
     watch,
     formState: { errors, isSubmitting },
   } = useForm<StoryFormValues>({
-    resolver: zodResolver(storySchema),
+    resolver: zodResolver(storySchema) as any,
     defaultValues: {
       status: "ONGOING",
       visibility: "PRIVATE",

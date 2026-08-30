@@ -19,7 +19,7 @@ export function LoginForm() {
     handleSubmit,
     formState: { errors },
   } = useForm<LoginSchemaType>({
-    resolver: zodResolver(loginSchema),
+    resolver: zodResolver(loginSchema) as any,
   });
 
   const onSubmit = async (data: LoginSchemaType) => {

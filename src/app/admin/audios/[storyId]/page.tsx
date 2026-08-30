@@ -1,5 +1,6 @@
 "use client";
 
+import { Variants } from "framer-motion";
 import React, { useState } from 'react';
 import Link from 'next/link';
 import { useParams, useRouter } from 'next/navigation';
@@ -42,7 +43,7 @@ export default function AdminAudioStoryChaptersPage() {
     }
   };
 
-  const containerVariants = {
+  const containerVariants: Variants = {
     hidden: { opacity: 0 },
     show: {
       opacity: 1,
@@ -50,7 +51,7 @@ export default function AdminAudioStoryChaptersPage() {
     }
   };
 
-  const itemVariants = {
+  const itemVariants: Variants = {
     hidden: { opacity: 0, x: -10 },
     show: { opacity: 1, x: 0, transition: { duration: 0.3 } }
   };

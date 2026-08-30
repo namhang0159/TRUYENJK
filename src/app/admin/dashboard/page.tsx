@@ -16,7 +16,7 @@ import {
 import { useSystemStats } from '@/hooks/use-admin';
 import { Skeleton } from '@/components/ui/skeleton';
 import { format } from 'date-fns';
-import { motion } from 'framer-motion';
+import { motion, Variants } from 'framer-motion';
 
 // Counter component for animated numbers
 const AnimatedCounter = ({ value, prefix = "", suffix = "" }: { value: number, prefix?: string, suffix?: string }) => {
@@ -52,7 +52,7 @@ const AnimatedCounter = ({ value, prefix = "", suffix = "" }: { value: number, p
 export default function AdminDashboardPage() {
   const { data: stats, isLoading } = useSystemStats();
 
-  const containerVariants = {
+  const containerVariants: Variants = {
     hidden: { opacity: 0 },
     show: {
       opacity: 1,
@@ -60,9 +60,9 @@ export default function AdminDashboardPage() {
     }
   };
 
-  const itemVariants = {
+  const itemVariants: Variants = {
     hidden: { opacity: 0, y: 5 },
-    show: { opacity: 1, y: 0, transition: { duration: 0.3, ease: [0.16, 1, 0.3, 1] as const } }
+    show: { opacity: 1, y: 0, transition: { duration: 0.3, ease: [0.16, 1, 0.3, 1] } }
   };
 
   const StatCard = ({ title, value, label, trend }: { title: string, value: number, label: string, trend?: string }) => {

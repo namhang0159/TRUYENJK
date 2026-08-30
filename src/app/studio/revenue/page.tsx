@@ -2,7 +2,7 @@
 
 import { useRouter } from 'next/navigation';
 import React, { useState } from 'react';
-import { motion } from 'framer-motion';
+import { motion, Variants } from 'framer-motion';
 import { 
   BarChart, 
   Bar, 
@@ -24,7 +24,7 @@ import { useAuthorRevenue } from '@/hooks/use-author';
 
 const COLORS = ['#3b82f6', '#10b981', '#f59e0b', '#ef4444', '#8b5cf6', '#ec4899', '#14b8a6'];
 
-const containerVariants = {
+const containerVariants: Variants = {
   hidden: { opacity: 0 },
   show: {
     opacity: 1,
@@ -32,9 +32,9 @@ const containerVariants = {
   }
 };
 
-const itemVariants = {
+const itemVariants: Variants = {
   hidden: { opacity: 0, y: 20 },
-  show: { opacity: 1, y: 0, transition: { type: "spring" as const, stiffness: 300, damping: 24 } }
+  show: { opacity: 1, y: 0, transition: { type: "spring", stiffness: 300, damping: 24 } }
 };
 
 export default function RevenuePage() {
@@ -404,7 +404,7 @@ export default function RevenuePage() {
                         fill="#8884d8"
                         dataKey="total"
                         nameKey="item_name"
-                        label={({ name, percent = 0 }: any) => `${name} ${(percent * 100).toFixed(0)}%`}
+                        label={({ name, percent = 0 }: any) => `${name} ${((percent || 0) * 100).toFixed(0)}%`}
                       >
                         {revenueByGift.map((entry: any, index: number) => (
                           <Cell key={`cell-${index}`} fill={COLORS[index % COLORS.length]} />

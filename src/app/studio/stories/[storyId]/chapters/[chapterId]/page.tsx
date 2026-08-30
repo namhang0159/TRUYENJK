@@ -1,5 +1,5 @@
-
 "use client";
+
 
 import React, { useState, useEffect } from 'react';
 import { useForm, Controller } from 'react-hook-form';
@@ -70,7 +70,7 @@ export default function EditChapterPage() {
     setValue,
     formState: { errors, isSubmitting },
   } = useForm<ChapterFormValues>({
-    resolver: zodResolver(chapterSchema),
+    resolver: zodResolver(chapterSchema) as any,
     defaultValues: {
       status: "DRAFT",
       type: "FREE",
