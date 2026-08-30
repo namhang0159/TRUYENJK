@@ -31,8 +31,8 @@ import { useCreateChapter } from '@/hooks/use-author';
 const chapterSchema = z.object({
   title: z.string().min(1, "Vui lòng nhập tên chương"),
   content: z.string().min(20, "Nội dung chương quá ngắn"),
-  status: z.enum(["DRAFT", "PUBLISHED", "PENDING"]).default("DRAFT"),
-  type: z.enum(["FREE", "VIP"]).default("FREE"),
+  status: z.enum(["DRAFT", "PUBLISHED", "PENDING"]),
+  type: z.enum(["FREE", "VIP"]),
   coinPrice: z.number().min(0).optional(),
   publishAt: z.date().optional(),
 }).superRefine((data, ctx) => {
@@ -210,7 +210,6 @@ export default function NewChapterPage() {
                             mode="single"
                             selected={field.value}
                             onSelect={field.onChange}
-                            initialFocus
                             className="bg-black text-white"
                           />
                         </PopoverContent>

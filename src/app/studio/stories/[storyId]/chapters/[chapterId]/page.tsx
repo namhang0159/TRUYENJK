@@ -1,3 +1,4 @@
+
 "use client";
 
 import React, { useState, useEffect } from 'react';
@@ -6,20 +7,20 @@ import { zodResolver } from '@hookform/resolvers/zod';
 import * as z from 'zod';
 import { format } from 'date-fns';
 import { vi } from 'date-fns/locale';
-import { 
-  Card, 
-  CardContent, 
-  CardHeader, 
+import {
+  Card,
+  CardContent,
+  CardHeader,
   CardTitle,
 } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { RadioGroup, RadioGroupItem } from '@/components/ui/radio-group';
-import { 
-  Popover, 
-  PopoverContent, 
-  PopoverTrigger 
+import {
+  Popover,
+  PopoverContent,
+  PopoverTrigger
 } from '@/components/ui/popover';
 import { Calendar } from '@/components/ui/calendar';
 import { TiptapEditor } from '@/components/studio/editor';
@@ -33,8 +34,8 @@ import { VersionsModal } from '@/components/studio/versions-modal';
 const chapterSchema = z.object({
   title: z.string().min(1, "Vui lòng nhập tên chương"),
   content: z.string().min(20, "Nội dung chương quá ngắn"),
-  status: z.enum(["DRAFT", "PENDING", "PUBLISHED"]).default("DRAFT"),
-  type: z.enum(["FREE", "VIP"]).default("FREE"),
+  status: z.enum(["DRAFT", "PENDING", "PUBLISHED"]),
+  type: z.enum(["FREE", "VIP"]),
   coinPrice: z.number().min(0).optional(),
   publishAt: z.date().optional(),
 }).superRefine((data, ctx) => {
@@ -97,7 +98,7 @@ export default function EditChapterPage() {
         coin_price: data.coinPrice || 0,
         status: data.status,
       };
-      
+
       await updateChapter(payload);
       alert("Cập nhật chương thành công!");
     } catch (error: any) {
@@ -129,7 +130,7 @@ export default function EditChapterPage() {
           </Link>
           <h1 className="text-3xl font-light tracking-tight text-white">Chỉnh sửa chương</h1>
         </div>
-        
+
         <Button variant="outline" className="rounded-none border-zinc-800 bg-transparent hover:bg-white hover:text-black font-mono text-xs uppercase tracking-widest transition-colors" onClick={() => setIsVersionsOpen(true)}>
           <History className="mr-2 h-4 w-4" />
           Lịch sử phiên bản
@@ -138,11 +139,11 @@ export default function EditChapterPage() {
 
       {/* Thông kê nhanh */}
       <div className="bg-zinc-950 border border-red-900/30 text-red-500 p-4 font-mono text-[10px] uppercase tracking-widest mb-4">
-        DEBUG: 
-        isFetching: {String(isFetching)}<br/>
-        chapter is null: {String(chapter == null)}<br/>
-        chapter.text_content length: {chapter?.text_content?.length}<br/>
-        chapter.content length: {chapter?.content?.length}<br/>
+        DEBUG:
+        isFetching: {String(isFetching)}<br />
+        chapter is null: {String(chapter == null)}<br />
+        chapter.text_content length: {chapter?.text_content?.length}<br />
+        chapter.content length: {chapter?.content?.length}<br />
         form content length: {watch("content")?.length}
       </div>
       <div className="flex items-center gap-4 text-xs font-mono text-zinc-500 px-2 uppercase tracking-widest">
@@ -163,15 +164,15 @@ export default function EditChapterPage() {
               <CardContent className="p-6 space-y-6">
                 <div className="space-y-2">
                   <Label htmlFor="title" className="font-mono text-[10px] uppercase tracking-widest text-zinc-500">Tên chương</Label>
-                  <Input 
-                    id="title" 
-                    placeholder="Nhập tên chương..." 
+                  <Input
+                    id="title"
+                    placeholder="Nhập tên chương..."
                     className="rounded-none border-zinc-800 bg-zinc-950 focus-visible:ring-0 focus-visible:border-zinc-500 font-mono text-lg py-6"
-                    {...register("title")} 
+                    {...register("title")}
                   />
                   {errors.title && <p className="text-[10px] font-mono text-red-500 uppercase">{errors.title.message}</p>}
                 </div>
-                
+
                 <div className="space-y-2">
                   <Label className="font-mono text-[10px] uppercase tracking-widest text-zinc-500">Nội dung chương</Label>
                   <div className="border border-zinc-800 bg-zinc-950/50">
@@ -179,9 +180,9 @@ export default function EditChapterPage() {
                       name="content"
                       control={control}
                       render={({ field }) => (
-                        <TiptapEditor 
-                          content={field.value} 
-                          onChange={field.onChange} 
+                        <TiptapEditor
+                          content={field.value}
+                          onChange={field.onChange}
                         />
                       )}
                     />
@@ -204,8 +205,8 @@ export default function EditChapterPage() {
                     name="type"
                     control={control}
                     render={({ field }) => (
-                      <RadioGroup 
-                        onValueChange={field.onChange} 
+                      <RadioGroup
+                        onValueChange={field.onChange}
                         value={field.value}
                         className="flex flex-col space-y-3 mt-2"
                       >
@@ -227,12 +228,12 @@ export default function EditChapterPage() {
                 {watchType === "VIP" && (
                   <div className="space-y-2 animate-in fade-in slide-in-from-top-2">
                     <Label htmlFor="coinPrice" className="font-mono text-[10px] uppercase tracking-widest text-zinc-500">Giá Coin</Label>
-                    <Input 
-                      id="coinPrice" 
-                      type="number" 
-                      placeholder="VD: 100" 
+                    <Input
+                      id="coinPrice"
+                      type="number"
+                      placeholder="VD: 100"
                       className="rounded-none border-zinc-800 bg-zinc-950 focus-visible:ring-0 focus-visible:border-amber-500 font-mono text-amber-500"
-                      {...register("coinPrice", { valueAsNumber: true })} 
+                      {...register("coinPrice", { valueAsNumber: true })}
                     />
                     {errors.coinPrice && <p className="text-[10px] font-mono text-red-500 uppercase">{errors.coinPrice.message}</p>}
                   </div>
@@ -251,15 +252,14 @@ export default function EditChapterPage() {
                             className={`w-full justify-start text-left font-mono text-xs rounded-none border-zinc-800 bg-zinc-950 hover:bg-zinc-900 hover:text-white ${!field.value && "text-zinc-500"}`}
                           />
                         }>
-                            <CalendarIcon className="mr-2 h-4 w-4" />
-                            {field.value ? format(field.value, "PPP", { locale: vi }) : <span className="uppercase tracking-widest">Chọn ngày xuất bản</span>}
+                          <CalendarIcon className="mr-2 h-4 w-4" />
+                          {field.value ? format(field.value, "PPP", { locale: vi }) : <span className="uppercase tracking-widest">Chọn ngày xuất bản</span>}
                         </PopoverTrigger>
                         <PopoverContent className="w-auto p-0 rounded-none border-zinc-800 bg-black" align="start">
                           <Calendar
                             mode="single"
                             selected={field.value}
                             onSelect={field.onChange}
-                            initialFocus
                             className="bg-black text-white"
                           />
                         </PopoverContent>
@@ -269,10 +269,10 @@ export default function EditChapterPage() {
                 </div>
 
                 <div className="flex flex-col gap-3 pt-4 border-t border-zinc-900">
-                  <Button 
-                    type="submit" 
+                  <Button
+                    type="submit"
                     variant="outline"
-                    className="w-full rounded-none border-emerald-500/50 bg-emerald-500/10 text-emerald-500 hover:bg-emerald-500 hover:text-black font-mono text-xs uppercase tracking-widest transition-colors h-12" 
+                    className="w-full rounded-none border-emerald-500/50 bg-emerald-500/10 text-emerald-500 hover:bg-emerald-500 hover:text-black font-mono text-xs uppercase tracking-widest transition-colors h-12"
                     disabled={isSubmitting}
                     onClick={() => {
                       control._formValues.status = "PUBLISHED";
@@ -281,10 +281,10 @@ export default function EditChapterPage() {
                     <Save className="mr-2 h-4 w-4" />
                     Lưu & Xuất bản
                   </Button>
-                  <Button 
-                    type="submit" 
-                    variant="outline" 
-                    className="w-full rounded-none border-zinc-800 text-zinc-400 bg-transparent hover:bg-zinc-900 hover:text-white font-mono text-[10px] uppercase tracking-widest transition-colors" 
+                  <Button
+                    type="submit"
+                    variant="outline"
+                    className="w-full rounded-none border-zinc-800 text-zinc-400 bg-transparent hover:bg-zinc-900 hover:text-white font-mono text-[10px] uppercase tracking-widest transition-colors"
                     disabled={isSubmitting}
                     onClick={() => {
                       control._formValues.status = "DRAFT";
@@ -299,7 +299,7 @@ export default function EditChapterPage() {
         </div>
       </form>
 
-      <VersionsModal 
+      <VersionsModal
         chapterId={chapterId}
         isOpen={isVersionsOpen}
         onClose={() => setIsVersionsOpen(false)}
