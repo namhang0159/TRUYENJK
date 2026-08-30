@@ -33,7 +33,7 @@ export function AudioSettingsModal() {
           <div className="grid grid-cols-2 gap-4">
             <div className="space-y-2">
               <label className="text-sm font-medium leading-none">Tốc độ đọc</label>
-              <Select value={speed.toString()} onValueChange={(v) => setSpeed(parseFloat(v))}>
+              <Select value={speed.toString()} onValueChange={(v) => setSpeed(parseFloat(v || "1"))}>
                 <SelectTrigger>
                   <SelectValue placeholder="Speed" />
                 </SelectTrigger>
@@ -48,7 +48,7 @@ export function AudioSettingsModal() {
             
             <div className="space-y-2">
               <label className="text-sm font-medium leading-none">Giọng đọc</label>
-              <Select value={voice} onValueChange={(v: "nam"|"nu") => setVoice(v)}>
+              <Select value={voice} onValueChange={(v: "nam"|"nu"|null) => v && setVoice(v)}>
                 <SelectTrigger>
                   <SelectValue placeholder="Voice" />
                 </SelectTrigger>
@@ -85,7 +85,7 @@ export function AudioSettingsModal() {
               </label>
               <Select 
                 value={sleepTimer ? sleepTimer.toString() : "none"} 
-                onValueChange={(v) => setSleepTimer(v === "none" ? null : parseInt(v))}
+                onValueChange={(v) => setSleepTimer(v === "none" || !v ? null : parseInt(v))}
               >
                 <SelectTrigger>
                   <SelectValue placeholder="Sleep timer" />

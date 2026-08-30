@@ -315,7 +315,7 @@ export function AudioPlayer({ storyId, chapterId, chapterTitle, initialProgress 
               max={Number.isFinite(duration) && duration > 0 ? duration : 100} 
               step={1} 
               onValueChange={(val) => {
-                const newTime = Number(val[0]);
+                const newTime = Number(Array.isArray(val) ? val[0] : val);
                 if (Number.isFinite(newTime)) {
                   if (audioRef.current) {
                     try {

@@ -33,8 +33,8 @@ const storySchema = z.object({
   title: z.string().min(3, "Tên truyện phải từ 3 ký tự trở lên"),
   description: z.string().min(10, "Mô tả truyện quá ngắn"),
   categories: z.array(z.string()).min(1, "Vui lòng chọn ít nhất 1 thể loại"),
-  status: z.enum(["ONGOING", "COMPLETED", "PAUSED"]).default("ONGOING"),
-  visibility: z.enum(["PUBLIC", "PRIVATE"]).default("PRIVATE"),
+  status: z.enum(["ONGOING", "COMPLETED", "PAUSED"]),
+  visibility: z.enum(["PUBLIC", "PRIVATE"]),
 });
 
 type StoryFormValues = z.infer<typeof storySchema>;

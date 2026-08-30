@@ -76,7 +76,7 @@ export function ReportModal({ isOpen, onClose, targetId, targetType }: ReportMod
         <form onSubmit={handleSubmit} className="space-y-6 py-4">
           <div className="space-y-3">
             <Label>Lý do <span className="text-red-500">*</span></Label>
-            <Select value={reason} onValueChange={setReason}>
+            <Select value={reason} onValueChange={(val) => setReason(val || "")}>
               <SelectTrigger className="w-full bg-black border-zinc-800 text-white">
                 <SelectValue placeholder="Chọn lý do báo cáo..." />
               </SelectTrigger>

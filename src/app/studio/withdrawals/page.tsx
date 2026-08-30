@@ -52,7 +52,7 @@ const containerVariants = {
 
 const itemVariants = {
   hidden: { opacity: 0, y: 20 },
-  show: { opacity: 1, y: 0, transition: { type: "spring", stiffness: 300, damping: 24 } }
+  show: { opacity: 1, y: 0, transition: { type: "spring" as const, stiffness: 300, damping: 24 } }
 };
 
 export default function WithdrawalsPage() {
@@ -173,7 +173,7 @@ export default function WithdrawalsPage() {
                     <Landmark className="h-3 h-3" />
                     Ngân hàng / Ví điện tử
                   </Label>
-                  <Select value={bankName} onValueChange={setBankName}>
+                  <Select value={bankName} onValueChange={(val) => setBankName(val || "")}>
                     <SelectTrigger id="bankName" className="w-full bg-zinc-950 border-zinc-900 text-white focus:ring-0 focus:border-zinc-500 h-14 rounded-none font-mono text-xs uppercase tracking-widest">
                       <SelectValue placeholder="Chọn ngân hàng hoặc ví điện tử..." />
                     </SelectTrigger>
