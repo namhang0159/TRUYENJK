@@ -1,6 +1,6 @@
 import axios, { AxiosError, InternalAxiosRequestConfig } from "axios";
 
-const API_URL = process.env.NEXT_PUBLIC_API_URL || "http://localhost:8000/api/v1";
+const API_URL = process.env.NEXT_PUBLIC_API_URL || "http://api.namhang0159.io.vn/api/v1";
 
 export const axiosInstance = axios.create({
   baseURL: API_URL,
@@ -62,7 +62,7 @@ axiosInstance.interceptors.response.use(
 
     // Bắt lỗi 401 Unauthorized, ngoại trừ các route auth/login và auth/register
     const isAuthRoute = originalRequest.url?.endsWith('/auth/login') || originalRequest.url?.endsWith('/auth/register');
-    
+
     if (error.response?.status === 401 && !originalRequest._retry && !isAuthRoute) {
       originalRequest._retry = true;
       const refreshToken = getRefreshToken();
