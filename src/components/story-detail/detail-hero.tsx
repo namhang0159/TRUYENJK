@@ -3,13 +3,16 @@ import { Badge } from "@/components/ui/badge";
 import { BookOpen, Headphones, Play, Star, Eye, FileText, BookmarkPlus, Flag } from "lucide-react";
 import { Story, useLibrary, useToggleBookmark } from "@/hooks/use-stories";
 import Link from "next/link";
+import { useRouter } from "next/navigation";
+import { toast } from "sonner";
 import { useAuthStore } from "@/store/auth-store";
 
 interface DetailHeroProps {
-  story: Story;
+  story: Story & { has_audio?: boolean; first_audio_chapter?: number };
 }
 
 export function DetailHero({ story }: DetailHeroProps) {
+  const router = useRouter();
   const { data: library } = useLibrary();
   const { isAuthenticated } = useAuthStore();
   const lastReadChapter = library?.readingHistories?.find((h: any) => h.story_id === story.id || h.story?.slug === story.id);
@@ -17,21 +20,21 @@ export function DetailHero({ story }: DetailHeroProps) {
   return (
     <div className="relative w-full rounded-2xl overflow-hidden mb-12 shadow-2xl">
       {/* Background Blur */}
-      <div 
-        className="absolute inset-0 bg-cover bg-center opacity-30 blur-2xl scale-110" 
-        style={{ backgroundImage: `url(${story.coverImage})` }} 
+      <div
+        className="absolute inset-0 bg-cover bg-center opacity-30 blur-2xl scale-110"
+        style={{ backgroundImage: `url(${story.coverImage})` }}
       />
       <div className="absolute inset-0 bg-gradient-to-t from-background via-background/60 to-transparent" />
       <div className="absolute inset-0 bg-gradient-to-r from-background via-background/80 to-transparent" />
-      
+
       {/* Content */}
       <div className="relative p-6 md:p-12 z-10 flex flex-col md:flex-row gap-8 items-start md:items-center">
         {/* Cover Image */}
         <div className="shrink-0 group">
-          <img 
-            src={story.coverImage} 
-            alt={story.title} 
-            className="w-48 md:w-64 aspect-[2/3] object-cover rounded-xl shadow-[0_20px_50px_rgba(0,0,0,0.5)] border border-white/10 group-hover:scale-105 transition-transform duration-500" 
+          <img
+            src={story.coverImage}
+            alt={story.title}
+            className="w-48 md:w-64 aspect-[2/3] object-cover rounded-xl shadow-[0_20px_50px_rgba(0,0,0,0.5)] border border-white/10 group-hover:scale-105 transition-transform duration-500"
           />
         </div>
 
@@ -40,7 +43,7 @@ export function DetailHero({ story }: DetailHeroProps) {
           <h1 className="display-font text-4xl md:text-5xl font-extrabold tracking-tight mb-4 text-foreground drop-shadow-md">
             {story.title}
           </h1>
-          
+
           <div className="flex flex-wrap items-center gap-3 mb-6">
             <Badge variant="secondary" className="text-sm bg-primary/20 text-primary hover:bg-primary/30">
               {story.author}
@@ -96,23 +99,28 @@ export function DetailHero({ story }: DetailHeroProps) {
                 </Button>
               </Link>
             )}
-            
+
             <Link href={`/truyen/${story.id}/1`}>
               <Button size="lg" variant="secondary" className="rounded-full bg-secondary/80 backdrop-blur font-semibold px-8 text-base">
                 <BookOpen className="mr-2 h-5 w-5" /> Đọc từ đầu
               </Button>
             </Link>
-            <Button 
-              size="lg" 
-              variant="outline" 
+            <Button
+              size="lg"
+              variant="outline"
               className="rounded-full font-semibold px-8 text-base"
               onClick={() => {
                 if (!isAuthenticated) {
-                  window.location.href = "/login";
-                } else {
-                  // Mở Audio Player. Thực tế có thể cần push router tới chương đầu tiên, sau đó bật audio
-                  alert("Tính năng Audio đang được phát triển hoặc chọn chương để nghe.");
+                  toast.error("Vui lòng đăng nhập để nghe Audio.");
+                  router.push("/login");
+                  return;
                 }
+                if (!story.has_audio) {
+                  toast.info("Truyện hiện chưa có bản thu Audio. Bạn vui lòng đọc truyện chữ hoặc quay lại sau nhé!");
+                  return;
+                }
+                const targetChapter = story.first_audio_chapter || 1;
+                router.push(`/truyen/${(story as any).slug || story.id}/${targetChapter}?listen=true`);
               }}
             >
               <Headphones className="mr-2 h-5 w-5" /> Nghe Audio
@@ -136,14 +144,14 @@ function DonateButton({ storyId }: { storyId: string | number }) {
   const [isOpen, setIsOpen] = useState(false);
   return (
     <>
-      <Button 
+      <Button
         onClick={() => setIsOpen(true)}
-        size="icon" 
+        size="icon"
         className="rounded-full h-11 w-11 bg-primary text-primary-foreground hover:bg-primary/90 shadow-md ml-auto md:ml-0"
       >
         <Gift className="h-5 w-5" />
       </Button>
-      <DonateModal isOpen={isOpen} onClose={() => setIsOpen(false)} storyId={Number(storyId)} />
+      <DonateModal isOpen={isOpen} onClose={() => setIsOpen(false)} storyId={storyId} />
     </>
   );
 }
@@ -152,7 +160,7 @@ function BookmarkButton({ storyId }: { storyId: string | number }) {
   const { data: library } = useLibrary();
   const { mutate: toggleBookmark, isPending } = useToggleBookmark();
   const { isAuthenticated } = useAuthStore();
-  
+
   const isBookmarked = library?.bookmarks?.some((b: any) => b.story_id === storyId || b.story?.slug === storyId);
 
   const handleToggle = () => {
@@ -164,14 +172,13 @@ function BookmarkButton({ storyId }: { storyId: string | number }) {
   };
 
   return (
-    <Button 
-      size="icon" 
-      variant={isBookmarked ? "default" : "ghost"} 
-      className={`rounded-full h-11 w-11 transition-colors ml-auto md:ml-0 ${
-        isBookmarked 
-          ? "bg-primary text-primary-foreground hover:bg-primary/90" 
+    <Button
+      size="icon"
+      variant={isBookmarked ? "default" : "ghost"}
+      className={`rounded-full h-11 w-11 transition-colors ml-auto md:ml-0 ${isBookmarked
+          ? "bg-primary text-primary-foreground hover:bg-primary/90"
           : "hover:bg-primary/20 hover:text-primary"
-      }`}
+        }`}
       onClick={handleToggle}
       disabled={isPending}
     >
@@ -194,20 +201,20 @@ function ReportStoryButton({ storyId }: { storyId: string | number }) {
 
   return (
     <>
-      <Button 
-        size="icon" 
-        variant="ghost" 
+      <Button
+        size="icon"
+        variant="ghost"
         className="rounded-full h-11 w-11 transition-colors hover:bg-red-500/20 hover:text-red-500 ml-auto md:ml-0 text-muted-foreground"
         onClick={handleOpen}
         title="Báo cáo vi phạm"
       >
         <Flag className="h-5 w-5" />
       </Button>
-      <ReportModal 
-        isOpen={isOpen} 
-        onClose={() => setIsOpen(false)} 
-        targetId={Number(storyId)} 
-        targetType="STORY" 
+      <ReportModal
+        isOpen={isOpen}
+        onClose={() => setIsOpen(false)}
+        targetId={storyId}
+        targetType="STORY"
       />
     </>
   );

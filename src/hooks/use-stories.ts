@@ -154,9 +154,10 @@ export const useChapterDetail = (slug: string, chapterId: string) => {
     queryFn: async () => {
       // chapterId is actually chapter_number in our setup (like /truyen/kiem-dao/1)
       const { data } = await axiosInstance.get(`/reader/stories/${slug}/chapters/${chapterId}`);
-      const c = data.data;
+      const c = data?.data;
+      if (!c) return null;
       return {
-        id: c.id.toString(),
+        id: c.id?.toString() || "",
         story_id: c.story_id,
         title: c.title,
         content: c.text_content || c.content || "", // handle backend field name 'text_content'

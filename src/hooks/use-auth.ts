@@ -17,7 +17,7 @@ export const useAuth = () => {
       storeLogin(userData, accessToken);
       return response.data;
     } catch (error: any) {
-      throw error.response?.data || { message: "Đăng nhập thất bại" };
+      throw new Error(error.response?.data?.message || "Đăng nhập thất bại");
     }
   };
 
@@ -33,7 +33,25 @@ export const useAuth = () => {
       storeLogin(userData, accessToken);
       return response.data;
     } catch (error: any) {
-      throw error.response?.data || { message: "Đăng nhập Google thất bại" };
+      throw new Error(error.response?.data?.message || "Đăng nhập Google thất bại");
+    }
+  };
+
+  const sendRegisterOtp = async (email: string) => {
+    try {
+      const response = await axiosInstance.post("/auth/send-register-otp", { email });
+      return response.data;
+    } catch (error: any) {
+      throw new Error(error.response?.data?.message || "Không thể gửi mã OTP qua email");
+    }
+  };
+
+  const sendAuthorZaloOtp = async (phone: string) => {
+    try {
+      const response = await axiosInstance.post("/auth/send-author-zalo-otp", { phone });
+      return response.data;
+    } catch (error: any) {
+      throw new Error(error.response?.data?.message || "Không thể gửi mã OTP qua Zalo");
     }
   };
 
@@ -42,13 +60,13 @@ export const useAuth = () => {
       const response = await axiosInstance.post("/auth/register", data);
       return response.data;
     } catch (error: any) {
-      throw error.response?.data || { message: "Đăng ký thất bại" };
+      throw new Error(error.response?.data?.message || "Đăng ký thất bại");
     }
   };
 
-  const registerAuthor = async (pen_name: string, bio: string = "", phone: string, facebook_link: string = "") => {
+  const registerAuthor = async (pen_name: string, bio: string = "", phone: string, facebook_link: string = "", otp: string = "") => {
     try {
-      const response = await axiosInstance.post("/auth/register-author", { pen_name, bio, phone, facebook_link });
+      const response = await axiosInstance.post("/auth/register-author", { pen_name, bio, phone, facebook_link, otp });
       const { accessToken, refreshToken, user: userData } = response.data.data;
       
       if (typeof window !== "undefined" && refreshToken) {
@@ -58,7 +76,7 @@ export const useAuth = () => {
       storeLogin(userData, accessToken);
       return response.data;
     } catch (error: any) {
-      throw error.response?.data || { message: "Đăng ký tác giả thất bại" };
+      throw new Error(error.response?.data?.message || "Đăng ký tác giả thất bại");
     }
   };
 
@@ -74,6 +92,8 @@ export const useAuth = () => {
     isAuthenticated,
     login,
     googleLogin,
+    sendRegisterOtp,
+    sendAuthorZaloOtp,
     register,
     registerAuthor,
     logout,

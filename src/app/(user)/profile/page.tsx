@@ -1,16 +1,18 @@
 "use client";
 
-import React from 'react';
+import React, { useState } from 'react';
 import { motion } from 'framer-motion';
 import { useAuth } from '@/hooks/use-auth';
-import { User, Wallet, History, Settings, ChevronRight, Shield, Star, PenTool, Headphones, LogOut } from 'lucide-react';
+import { User, Wallet, History, Settings, ChevronRight, Shield, Star, PenTool, Headphones, LogOut, KeyRound } from 'lucide-react';
 import Link from 'next/link';
 import { Button } from '@/components/ui/button';
 import { Skeleton } from '@/components/ui/skeleton';
 import { Badge } from '@/components/ui/badge';
+import { ChangePasswordModal } from '@/components/profile/change-password-modal';
 
 export default function ProfilePage() {
   const { user, isAuthenticated, logout } = useAuth();
+  const [isChangePasswordOpen, setIsChangePasswordOpen] = useState(false);
 
   if (!isAuthenticated || !user) {
     return (
@@ -78,13 +80,19 @@ export default function ProfilePage() {
             </div>
           </div>
 
-          <div className="relative z-10 mt-10 flex gap-4">
-            <Link href="/profile/settings">
-              <Button variant="outline" className="rounded-xl bg-background/50 hover:bg-background border-gray-200 dark:border-white/10 shadow-sm transition-all h-12 px-6">
-                <Settings className="w-4 h-4 mr-2" /> Cài đặt tài khoản
-              </Button>
-            </Link>
-            <Button variant="ghost" onClick={logout} className="rounded-xl text-red-500 hover:text-red-600 hover:bg-red-50 dark:hover:bg-red-500/10 h-12 px-6">
+          <div className="relative z-10 mt-10 flex flex-wrap gap-4">
+            <Button
+              variant="outline"
+              onClick={() => setIsChangePasswordOpen(true)}
+              className="rounded-xl bg-background/50 hover:bg-background border-gray-200 dark:border-white/10 shadow-sm transition-all h-12 px-6 cursor-pointer"
+            >
+              <KeyRound className="w-4 h-4 mr-2" /> Đổi mật khẩu
+            </Button>
+            <Button
+              variant="ghost"
+              onClick={logout}
+              className="rounded-xl text-red-500 hover:text-red-600 hover:bg-red-50 dark:hover:bg-red-500/10 h-12 px-6 cursor-pointer"
+            >
               <LogOut className="w-4 h-4 mr-2" /> Đăng xuất
             </Button>
           </div>
@@ -184,7 +192,7 @@ export default function ProfilePage() {
         </motion.div>
 
         {/* 5. Author Studio (Takes remaining space, full width on mobile) */}
-        {(user.role === 'AUTHOR' || user.role === 'ADMIN') && (
+        {user.role === 'AUTHOR' && (
           <motion.div
             initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.5, delay: 0.4, ease: "easeOut" }}
             className="md:col-span-2"
@@ -210,7 +218,39 @@ export default function ProfilePage() {
           </motion.div>
         )}
 
+        {/* 5b. Admin Dashboard (For Admin / Super Admin) */}
+        {(user.role === 'ADMIN' || user.role === 'SUPER_ADMIN') && (
+          <motion.div
+            initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.5, delay: 0.4, ease: "easeOut" }}
+            className="md:col-span-2"
+          >
+            <Link href="/admin/dashboard" className="block h-full">
+              <div className="group relative overflow-hidden rounded-[2rem] border border-blue-500/30 bg-blue-50 dark:bg-blue-950/20 backdrop-blur-xl shadow-sm hover:shadow-lg transition-all duration-500 p-6 flex flex-col md:flex-row items-start md:items-center justify-between gap-6">
+                <div className="absolute right-0 top-0 w-64 h-64 bg-blue-500/10 rounded-full blur-3xl pointer-events-none transform translate-x-1/2 -translate-y-1/2 group-hover:bg-blue-500/20 transition-colors duration-700" />
+                
+                <div className="flex items-center gap-5 relative z-10">
+                  <div className="p-4 rounded-2xl bg-blue-500/20 text-blue-600 dark:text-blue-400 border border-blue-500/30 transition-transform group-hover:scale-110">
+                    <Shield className="w-7 h-7" />
+                  </div>
+                  <div>
+                    <h3 className="text-xl font-bold text-foreground mb-1">Admin Dashboard</h3>
+                    <p className="text-sm text-muted-foreground">Trung tâm kiểm duyệt & quản trị hệ thống</p>
+                  </div>
+                </div>
+                <Button className="relative z-10 rounded-xl bg-blue-600 hover:bg-blue-700 text-white shadow-lg shadow-blue-500/25 border-none px-6 py-5 w-full md:w-auto font-bold">
+                  Truy cập Admin
+                </Button>
+              </div>
+            </Link>
+          </motion.div>
+        )}
+
       </div>
+
+      <ChangePasswordModal
+        isOpen={isChangePasswordOpen}
+        onClose={() => setIsChangePasswordOpen(false)}
+      />
     </div>
   );
 }

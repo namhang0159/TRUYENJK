@@ -21,6 +21,7 @@ import {
 import { RegisterAuthorModal } from "@/components/auth/register-author-modal";
 import { PenTool } from "lucide-react";
 import { Logo } from "@/components/logo";
+import { NotificationPopover } from "@/components/layout/notification-popover";
 
 export function Header() {
   const [searchTerm, setSearchTerm] = useState("");
@@ -136,6 +137,7 @@ export function Header() {
 
         {/* User Actions */}
         <div className="flex items-center gap-2">
+          <NotificationPopover />
           <ModeToggle />
           <Button variant="ghost" size="icon" className="md:hidden">
             <Menu className="h-5 w-5" />
@@ -163,11 +165,11 @@ export function Header() {
                 <DropdownMenuItem>
                   <Link href="/profile/wallet" className="w-full h-full">Quản lý Ví</Link>
                 </DropdownMenuItem>
-                {user.role === 'AUTHOR' || user.role === 'ADMIN' ? (
+                {user.role === 'AUTHOR' ? (
                   <DropdownMenuItem>
                     <Link href="/studio" className="w-full h-full">Author Studio</Link>
                   </DropdownMenuItem>
-                ) : user.authorStatus === 'PENDING' ? (
+                ) : user.role === 'ADMIN' || user.role === 'SUPER_ADMIN' ? null : user.authorStatus === 'PENDING' ? (
                   <DropdownMenuItem disabled className="text-muted-foreground">
                     <PenTool className="w-4 h-4 mr-2" /> Đang chờ duyệt tác giả
                   </DropdownMenuItem>

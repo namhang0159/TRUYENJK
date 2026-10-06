@@ -55,11 +55,11 @@
   --card-foreground: oklch(0.145 0 0);
   --popover: oklch(1 0 0);
   --popover-foreground: oklch(0.145 0 0);
-  
+
   /* Amber/Gold Primary */
-  --primary: oklch(0.7 0.15 70); 
+  --primary: oklch(0.7 0.15 70);
   --primary-foreground: oklch(0.985 0 0);
-  
+
   --secondary: oklch(0.95 0 0);
   --secondary-foreground: oklch(0.205 0 0);
   --muted: oklch(0.95 0 0);
@@ -70,13 +70,13 @@
   --border: oklch(0.922 0 0);
   --input: oklch(0.922 0 0);
   --ring: oklch(0.7 0.15 70);
-  
+
   --chart-1: oklch(0.7 0.15 70);
   --chart-2: oklch(0.556 0 0);
   --chart-3: oklch(0.439 0 0);
   --chart-4: oklch(0.371 0 0);
   --chart-5: oklch(0.269 0 0);
-  
+
   --radius: 0.75rem;
   --sidebar: oklch(0.985 0 0);
   --sidebar-foreground: oklch(0.145 0 0);
@@ -95,11 +95,11 @@
   --card-foreground: oklch(0.985 0 0);
   --popover: oklch(0.16 0 0);
   --popover-foreground: oklch(0.985 0 0);
-  
+
   /* Amber/Gold Primary for Dark Mode */
   --primary: oklch(0.75 0.15 75);
   --primary-foreground: oklch(0.13 0 0);
-  
+
   --secondary: oklch(0.2 0 0);
   --secondary-foreground: oklch(0.985 0 0);
   --muted: oklch(0.2 0 0);
@@ -110,13 +110,13 @@
   --border: oklch(0.25 0 0);
   --input: oklch(0.25 0 0);
   --ring: oklch(0.75 0.15 75);
-  
+
   --chart-1: oklch(0.75 0.15 75);
   --chart-2: oklch(0.556 0 0);
   --chart-3: oklch(0.439 0 0);
   --chart-4: oklch(0.371 0 0);
   --chart-5: oklch(0.269 0 0);
-  
+
   --sidebar: oklch(0.16 0 0);
   --sidebar-foreground: oklch(0.985 0 0);
   --sidebar-primary: oklch(0.75 0.15 75);
@@ -134,12 +134,28 @@
   body {
     @apply bg-background text-foreground transition-colors duration-300;
   }
+  input,
+  textarea,
+  select {
+    color: inherit;
+  }
+  .dark input,
+  .dark textarea,
+  .dark select {
+    color: #ffffff;
+  }
   html {
     @apply font-sans;
   }
-  
+
   /* Heading Display Font */
-  h1, h2, h3, h4, h5, h6, .display-font {
+  h1,
+  h2,
+  h3,
+  h4,
+  h5,
+  h6,
+  .display-font {
     font-family: var(--font-outfit), var(--font-sans);
   }
 }
@@ -162,5 +178,14 @@
   .gradient-border-3 {
     @apply border-2 border-transparent bg-clip-border;
     border-image: linear-gradient(to right, #b45309, #d97706) 1;
+  }
+
+  .no-scrollbar {
+    -ms-overflow-style: none;
+    scrollbar-width: none;
+  }
+
+  .no-scrollbar::-webkit-scrollbar {
+    display: none;
   }
 }

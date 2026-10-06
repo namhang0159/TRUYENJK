@@ -2,8 +2,8 @@ import { Metadata } from 'next';
 import { StoryDetailClient } from './client';
 import axios from 'axios';
 
-// Base API URL could be from environment variable. For now using localhost or default.
-const API_URL = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:5000/api/v1';
+// Base API URL could be from environment variable. Default to 8000.
+const API_URL = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:8000/api/v1';
 
 export async function generateMetadata(
   { params }: { params: Promise<{ slug: string }> }

@@ -30,6 +30,7 @@ import { useParams, useRouter } from 'next/navigation';
 import { useUpdateChapter, useAuthorChapter } from '@/hooks/use-author';
 import { Skeleton } from '@/components/ui/skeleton';
 import { VersionsModal } from '@/components/studio/versions-modal';
+import { toast } from 'sonner';
 
 const chapterSchema = z.object({
   title: z.string().min(1, "Vui lòng nhập tên chương"),
@@ -83,7 +84,7 @@ export default function EditChapterPage() {
       status: chapter.status as any,
       type: chapter.type as any,
       coinPrice: chapter.coin_price || 0,
-      publishAt: chapter.published_at ? new Date(chapter.published_at) : undefined,
+      publishAt: chapter.scheduled_at ? new Date(chapter.scheduled_at) : (chapter.published_at ? new Date(chapter.published_at) : undefined),
     } : undefined,
   });
 
@@ -97,13 +98,14 @@ export default function EditChapterPage() {
         type: data.type,
         coin_price: data.coinPrice || 0,
         status: data.status,
+        scheduled_at: data.publishAt ? data.publishAt.toISOString() : null,
       };
 
       await updateChapter(payload);
-      alert("Cập nhật chương thành công!");
+      toast.success("Cập nhật chương thành công!");
     } catch (error: any) {
       console.error(error);
-      alert("Lỗi: " + (error.message || "Không thể cập nhật chương"));
+      toast.error(error.response?.data?.message || error.message || "Không thể cập nhật chương");
     }
   };
 
@@ -137,15 +139,6 @@ export default function EditChapterPage() {
         </Button>
       </div>
 
-      {/* Thông kê nhanh */}
-      <div className="bg-zinc-950 border border-red-900/30 text-red-500 p-4 font-mono text-[10px] uppercase tracking-widest mb-4">
-        DEBUG:
-        isFetching: {String(isFetching)}<br />
-        chapter is null: {String(chapter == null)}<br />
-        chapter.text_content length: {chapter?.text_content?.length}<br />
-        chapter.content length: {chapter?.content?.length}<br />
-        form content length: {watch("content")?.length}
-      </div>
       <div className="flex items-center gap-4 text-xs font-mono text-zinc-500 px-2 uppercase tracking-widest">
         <div className="flex items-center gap-2 border border-zinc-800 bg-zinc-950 px-3 py-1">
           <FileText className="w-3 h-3" />
@@ -160,14 +153,14 @@ export default function EditChapterPage() {
       <form onSubmit={handleSubmit(onSubmit)}>
         <div className="grid gap-6 md:grid-cols-3">
           <div className="md:col-span-2 space-y-6">
-            <Card className="rounded-none bg-black border-zinc-900">
+            <Card className="rounded-none bg-black border-zinc-900 text-white">
               <CardContent className="p-6 space-y-6">
                 <div className="space-y-2">
-                  <Label htmlFor="title" className="font-mono text-[10px] uppercase tracking-widest text-zinc-500">Tên chương</Label>
+                  <Label htmlFor="title" className="font-mono text-[10px] uppercase tracking-widest text-zinc-400">Tên chương</Label>
                   <Input
                     id="title"
                     placeholder="Nhập tên chương..."
-                    className="rounded-none border-zinc-800 bg-zinc-950 focus-visible:ring-0 focus-visible:border-zinc-500 font-mono text-lg py-6"
+                    className="w-full rounded-none border-zinc-800 bg-zinc-950 !text-white placeholder:text-zinc-500 focus-visible:ring-0 focus-visible:border-zinc-500 font-mono text-lg py-6"
                     {...register("title")}
                   />
                   {errors.title && <p className="text-[10px] font-mono text-red-500 uppercase">{errors.title.message}</p>}
@@ -194,9 +187,9 @@ export default function EditChapterPage() {
           </div>
 
           <div className="space-y-6">
-            <Card className="rounded-none bg-black border-zinc-900">
+            <Card className="rounded-none bg-black border-zinc-900 text-white">
               <CardHeader>
-                <CardTitle className="font-light">Cài đặt Chương</CardTitle>
+                <CardTitle className="font-light text-white">Cài đặt Chương</CardTitle>
               </CardHeader>
               <CardContent className="space-y-6">
                 <div className="space-y-3">
@@ -274,9 +267,7 @@ export default function EditChapterPage() {
                     variant="outline"
                     className="w-full rounded-none border-emerald-500/50 bg-emerald-500/10 text-emerald-500 hover:bg-emerald-500 hover:text-black font-mono text-xs uppercase tracking-widest transition-colors h-12"
                     disabled={isSubmitting}
-                    onClick={() => {
-                      control._formValues.status = "PUBLISHED";
-                    }}
+                    onClick={() => setValue("status", "PUBLISHED")}
                   >
                     <Save className="mr-2 h-4 w-4" />
                     Lưu & Xuất bản
@@ -286,9 +277,7 @@ export default function EditChapterPage() {
                     variant="outline"
                     className="w-full rounded-none border-zinc-800 text-zinc-400 bg-transparent hover:bg-zinc-900 hover:text-white font-mono text-[10px] uppercase tracking-widest transition-colors"
                     disabled={isSubmitting}
-                    onClick={() => {
-                      control._formValues.status = "DRAFT";
-                    }}
+                    onClick={() => setValue("status", "DRAFT")}
                   >
                     Lưu bản nháp
                   </Button>

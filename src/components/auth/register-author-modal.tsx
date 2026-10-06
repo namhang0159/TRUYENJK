@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import {
   Dialog,
   DialogContent,
@@ -14,7 +14,8 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { useAuth } from "@/hooks/use-auth";
 import { useRouter } from "next/navigation";
-import { PenTool } from "lucide-react";
+import { PenTool, Loader2, MessageSquare } from "lucide-react";
+import { toast } from "sonner";
 
 interface RegisterAuthorModalProps {
   isOpen: boolean;
@@ -25,36 +26,71 @@ export function RegisterAuthorModal({ isOpen, onClose }: RegisterAuthorModalProp
   const [penName, setPenName] = useState("");
   const [bio, setBio] = useState("");
   const [phone, setPhone] = useState("");
+  const [otp, setOtp] = useState("");
   const [facebookLink, setFacebookLink] = useState("");
   const [agreeTerms, setAgreeTerms] = useState(false);
   const [isTermsOpen, setIsTermsOpen] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
-  const { registerAuthor } = useAuth();
+  const [isSendingOtp, setIsSendingOtp] = useState(false);
+  const [otpCountdown, setOtpCountdown] = useState(0);
+
+  const { registerAuthor, sendAuthorZaloOtp } = useAuth();
   const router = useRouter();
+
+  useEffect(() => {
+    let timer: NodeJS.Timeout;
+    if (otpCountdown > 0) {
+      timer = setTimeout(() => setOtpCountdown(c => c - 1), 1000);
+    }
+    return () => clearTimeout(timer);
+  }, [otpCountdown]);
+
+  const handleSendZaloOtp = async () => {
+    const cleanPhone = phone.trim().replace(/\D/g, '');
+    if (!cleanPhone || cleanPhone.length < 9) {
+      toast.error("Vui lòng nhập số điện thoại hợp lệ");
+      return;
+    }
+
+    try {
+      setIsSendingOtp(true);
+      await sendAuthorZaloOtp(phone.trim());
+      toast.success("Mã OTP 6 chữ số đã được gửi qua Zalo tới số của bạn!");
+      setOtpCountdown(60);
+    } catch (error: any) {
+      toast.error(error.message || "Không thể gửi mã OTP qua Zalo");
+    } finally {
+      setIsSendingOtp(false);
+    }
+  };
 
   const handleRegister = async (e: React.FormEvent) => {
     e.preventDefault();
     if (!penName.trim()) {
-      alert("Vui lòng nhập bút danh");
+      toast.error("Vui lòng nhập bút danh");
       return;
     }
     if (!phone.trim()) {
-      alert("Vui lòng nhập Số Điện Thoại / Zalo");
+      toast.error("Vui lòng nhập Số Điện Thoại / Zalo");
+      return;
+    }
+    if (!otp.trim()) {
+      toast.error("Vui lòng nhập mã xác thực OTP gửi qua Zalo");
       return;
     }
     if (!agreeTerms) {
-      alert("Vui lòng đồng ý với các điều khoản và quy định");
+      toast.error("Vui lòng đồng ý với các điều khoản và quy định");
       return;
     }
 
     try {
       setIsLoading(true);
-      await registerAuthor(penName.trim(), bio.trim(), phone.trim(), facebookLink.trim());
-      alert("Đăng ký làm tác giả thành công! Vui lòng chờ Admin phê duyệt.");
+      await registerAuthor(penName.trim(), bio.trim(), phone.trim(), facebookLink.trim(), otp.trim());
+      toast.success("Đăng ký làm tác giả thành công! Vui lòng chờ Admin phê duyệt.");
       onClose();
       router.push("/profile");
     } catch (error: any) {
-      alert(error.message || "Đăng ký thất bại");
+      toast.error(error.message || "Đăng ký thất bại");
     } finally {
       setIsLoading(false);
     }
@@ -88,13 +124,43 @@ export function RegisterAuthorModal({ isOpen, onClose }: RegisterAuthorModalProp
             </div>
 
             <div className="space-y-2">
-              <Label htmlFor="phone">Số Điện Thoại / Zalo <span className="text-red-500">*</span></Label>
+              <Label htmlFor="phone">Số Điện Thoại Zalo <span className="text-red-500">*</span></Label>
+              <div className="flex gap-2">
+                <Input
+                  id="phone"
+                  placeholder="0912345678..."
+                  value={phone}
+                  onChange={(e) => setPhone(e.target.value)}
+                  disabled={isLoading}
+                />
+                <Button
+                  type="button"
+                  variant="outline"
+                  onClick={handleSendZaloOtp}
+                  disabled={isSendingOtp || otpCountdown > 0 || !phone.trim()}
+                  className="shrink-0 font-mono text-xs border-blue-500/40 text-blue-400 hover:bg-blue-500/10"
+                >
+                  {isSendingOtp ? (
+                    <Loader2 className="w-3.5 h-3.5 animate-spin" />
+                  ) : otpCountdown > 0 ? (
+                    `${otpCountdown}s`
+                  ) : (
+                    "Gửi OTP Zalo"
+                  )}
+                </Button>
+              </div>
+            </div>
+
+            <div className="space-y-2">
+              <Label htmlFor="zalo-otp">Mã xác thực OTP qua Zalo <span className="text-red-500">*</span></Label>
               <Input
-                id="phone"
-                placeholder="Dùng để Admin liên hệ khi có vấn đề bản quyền..."
-                value={phone}
-                onChange={(e) => setPhone(e.target.value)}
+                id="zalo-otp"
+                placeholder="Nhập mã 6 chữ số..."
+                maxLength={6}
+                value={otp}
+                onChange={(e) => setOtp(e.target.value)}
                 disabled={isLoading}
+                className="font-mono tracking-widest text-center text-lg uppercase"
               />
             </div>
 

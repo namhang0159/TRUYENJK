@@ -23,7 +23,7 @@ export function TiptapEditor({ content, onChange }: EditorProps) {
     immediatelyRender: false,
     editorProps: {
       attributes: {
-        class: 'prose prose-invert text-zinc-100 prose-sm sm:prose-base lg:prose-lg xl:prose-2xl m-5 focus:outline-none min-h-[300px]',
+        class: 'prose prose-invert text-zinc-100 [&_*]:!text-zinc-100 prose-sm sm:prose-base lg:prose-lg xl:prose-2xl m-5 focus:outline-none min-h-[300px]',
       },
     },
     onUpdate: ({ editor }) => {

@@ -2,18 +2,26 @@
 
 import { useState, useEffect } from "react";
 import { useParams, useRouter } from "next/navigation";
-import { useChapterDetail, useStoryChapters, useUpsertHistory, useUnlockChapter } from "@/hooks/use-stories";
+import {
+  useChapterDetail,
+  useStoryChapters,
+  useUpsertHistory,
+  useUnlockChapter,
+} from "@/hooks/use-stories";
 import { useWallet } from "@/hooks/use-finance";
 import { useReaderStore } from "@/store/reader-store";
 import { useAuthStore } from "@/store/auth-store";
-import { useAudioStore } from "@/store/audio-store";
 import { ReadingSettings } from "@/components/reading/reading-settings";
 import { AudioPlayer } from "@/components/reading/audio-player";
 import { VipUnlockModal } from "@/components/reading/vip-unlock-modal";
+import { AffiliateBanner } from "@/components/ads/affiliate-banner";
+import { useReaderAds, useTrackAdClick } from "@/hooks/use-ads";
 import { Skeleton } from "@/components/ui/skeleton";
 import { Button, buttonVariants } from "@/components/ui/button";
 import { ChevronLeft, ChevronRight, Menu } from "lucide-react";
 import Link from "next/link";
+import DOMPurify from "isomorphic-dompurify";
+import { CommentSection } from "@/components/story-detail/comment-section";
 
 export default function ReadingPage() {
   const params = useParams();
@@ -24,14 +32,26 @@ export default function ReadingPage() {
   const { data: chapter, isLoading } = useChapterDetail(slug, chapterId);
   const { data: chapters } = useStoryChapters(slug);
   const { data: wallet } = useWallet();
-  const { theme, fontSize, fontFamily, lineHeight } = useReaderStore();
-  const { toggleOpen, isPlaying } = useAudioStore();
+  const { theme, fontSize, fontFamily, lineHeight, maxWidth } = useReaderStore();
   const { isAuthenticated } = useAuthStore();
   const { mutate: upsertHistory } = useUpsertHistory();
 
-  const currentChapterIndex = chapters?.findIndex((c) => c.chapterNumber.toString() === chapterId) ?? -1;
-  const prevChapter = currentChapterIndex > 0 ? chapters?.[currentChapterIndex - 1] : null;
-  const nextChapter = (chapters && currentChapterIndex !== -1 && currentChapterIndex < chapters.length - 1) ? chapters[currentChapterIndex + 1] : null;
+  const currentChapterIndex =
+    chapters?.findIndex(
+      (c) => c.chapterNumber === Number(chapterId) || c.id === chapterId,
+    ) ?? -1;
+  const prevChapter =
+    currentChapterIndex > 0 ? chapters?.[currentChapterIndex - 1] : null;
+  const nextChapter =
+    chapters &&
+    currentChapterIndex !== -1 &&
+    currentChapterIndex < chapters.length - 1
+      ? chapters[currentChapterIndex + 1]
+      : null;
+
+  const handleNavigateChapter = (targetChapterNumber: number | string) => {
+    router.push(`/truyen/${slug}/${targetChapterNumber}`);
+  };
 
   const [showVipModal, setShowVipModal] = useState(false);
   const [isUnlocked, setIsUnlocked] = useState(false); // Local state for unlock
@@ -43,13 +63,33 @@ export default function ReadingPage() {
     setMounted(true);
   }, []);
 
+  useEffect(() => {
+    window.scrollTo({ top: 0, behavior: "instant" as ScrollBehavior });
+  }, [chapterId]);
+
+  // Hỗ trợ phím mũi tên Trái / Phải để chuyển chương nhanh
+  useEffect(() => {
+    const handleKeyDown = (e: KeyboardEvent) => {
+      const activeTag = (document.activeElement?.tagName || "").toLowerCase();
+      if (activeTag === "input" || activeTag === "textarea") return;
+
+      if (e.key === "ArrowLeft" && prevChapter) {
+        handleNavigateChapter(prevChapter.chapterNumber);
+      } else if (e.key === "ArrowRight" && nextChapter) {
+        handleNavigateChapter(nextChapter.chapterNumber);
+      }
+    };
+    window.addEventListener("keydown", handleKeyDown);
+    return () => window.removeEventListener("keydown", handleKeyDown);
+  }, [prevChapter, nextChapter, slug]);
+
   // Ghi nhận lịch sử đọc
   useEffect(() => {
     if (chapter && isAuthenticated) {
       upsertHistory({
         story_id: chapter.story_id || slug,
         chapter_id: chapter.id,
-        progress_seconds: 0
+        progress_seconds: 0,
       });
     }
   }, [chapter, isAuthenticated, slug]);
@@ -68,33 +108,48 @@ export default function ReadingPage() {
       console.log("Audio ended for chapter:", e.detail?.chapterId);
       // alert("Audio kết thúc. Tự động chuyển chương...");
     };
-    window.addEventListener('audioEnded', handleAudioEnded);
-    return () => window.removeEventListener('audioEnded', handleAudioEnded);
+    window.addEventListener("audioEnded", handleAudioEnded);
+    return () => window.removeEventListener("audioEnded", handleAudioEnded);
   }, []);
 
   // Xử lý style theo Store (Chờ mounted để tránh Hydration Mismatch của Zustand Persist)
-  const themeClasses = mounted ? {
-    light: "bg-white text-gray-900",
-    dark: "bg-gray-950 text-gray-200",
-    sepia: "bg-[#f4ecd8] text-[#5b4636]",
-  }[theme] : "bg-gray-950 text-gray-200"; // Mặc định server
+  const themeClasses = mounted
+    ? {
+        light: "bg-white text-gray-900",
+        dark: "bg-gray-950 text-gray-200",
+        sepia: "bg-[#f4ecd8] text-[#5b4636]",
+      }[theme]
+    : "bg-gray-950 text-gray-200"; // Mặc định server
 
-  const fontClasses = mounted ? {
-    sans: "font-sans",
-    serif: "font-serif",
-    outfit: "font-[family-name:var(--font-outfit)]",
-  }[fontFamily] : "font-sans";
+  const fontClasses = mounted
+    ? {
+        sans: "font-sans",
+        serif: "font-serif",
+        outfit: "font-[family-name:var(--font-outfit)]",
+      }[fontFamily]
+    : "font-sans";
 
-  const leadingClasses = mounted ? {
-    tight: "leading-snug",
-    normal: "leading-normal",
-    relaxed: "leading-loose",
-  }[lineHeight] : "leading-relaxed";
+  const leadingClasses = mounted
+    ? {
+        tight: "leading-snug",
+        normal: "leading-normal",
+        relaxed: "leading-loose",
+      }[lineHeight]
+    : "leading-relaxed";
+
+  const containerWidthClass = mounted
+    ? {
+        sm: "max-w-2xl",
+        md: "max-w-3xl",
+        lg: "max-w-4xl",
+        xl: "max-w-5xl",
+      }[maxWidth] || "max-w-3xl"
+    : "max-w-3xl";
 
   if (isLoading) {
     return (
       <div className={`min-h-screen ${themeClasses} transition-colors p-8`}>
-        <div className="max-w-3xl mx-auto space-y-4">
+        <div className={`${containerWidthClass} mx-auto space-y-4`}>
           <Skeleton className="w-1/2 h-10 mx-auto mb-12" />
           {Array.from({ length: 15 }).map((_, i) => (
             <Skeleton key={i} className="w-full h-4" />
@@ -106,16 +161,21 @@ export default function ReadingPage() {
 
   if (!chapter) return <div>Không tìm thấy chương</div>;
 
-
   const handleUnlock = async () => {
     if (!chapter) return;
     try {
       setIsUnlocking(true);
-      await unlockChapter({ slug, chapterId: chapter.id, chapterNumber: chapterId });
+      await unlockChapter({
+        slug,
+        chapterId: chapter.id,
+        chapterNumber: chapterId,
+      });
       setIsUnlocked(true);
       setShowVipModal(false);
     } catch (error: any) {
-      alert(error.response?.data?.message || error.message || "Mở khóa thất bại");
+      alert(
+        error.response?.data?.message || error.message || "Mở khóa thất bại",
+      );
     } finally {
       setIsUnlocking(false);
     }
@@ -125,13 +185,18 @@ export default function ReadingPage() {
   const isBlur = chapter.isVip && !chapter.isUnlocked && !isUnlocked;
 
   return (
-    <div className={`min-h-screen ${themeClasses} ${fontClasses} transition-colors pb-24`}>
+    <div
+      className={`min-h-screen ${themeClasses} ${fontClasses} transition-colors pb-24`}
+    >
       {/* Top Bar */}
       <div className="sticky top-0 z-40 bg-inherit border-b border-border/10 shadow-sm backdrop-blur">
-        <div className="max-w-4xl mx-auto px-4 h-14 flex items-center justify-between">
+        <div className={`${containerWidthClass} mx-auto px-4 h-14 flex items-center justify-between`}>
           <Link
             href={`/truyen/${slug}`}
-            className={buttonVariants({ variant: "ghost", size: "sm" }) + " hover:bg-black/5 dark:hover:bg-white/5"}
+            className={
+              buttonVariants({ variant: "ghost", size: "sm" }) +
+              " hover:bg-black/5 dark:hover:bg-white/5"
+            }
           >
             <ChevronLeft className="w-5 h-5 mr-1" />
             {chapter.title}
@@ -143,29 +208,50 @@ export default function ReadingPage() {
       </div>
 
       {/* Main Content */}
-      <div className="max-w-3xl mx-auto px-6 py-12">
-        <h1 className="text-3xl font-bold text-center mb-12">{chapter.title}</h1>
+      <div className={`${containerWidthClass} mx-auto px-6 py-12`}>
+        <h1 className="text-3xl font-bold text-center mb-12">
+          {chapter.title}
+        </h1>
 
-        <div className={`text-justify whitespace-pre-wrap ${leadingClasses} [&>p]:mb-4 [&>strong]:font-bold [&>em]:italic`} style={{ fontSize: mounted ? `${fontSize}px` : '20px' }}>
+        <div
+          className={`text-justify whitespace-pre-wrap ${leadingClasses} [&>p]:mb-4 [&>strong]:font-bold [&>em]:italic [&_*]:!text-inherit`}
+          style={{ fontSize: mounted ? `${fontSize}px` : "20px" }}
+        >
           {isBlur ? (
             <div className="relative">
               {/* Hiển thị đoạn đầu rồi làm mờ */}
-              <div className="blur-sm select-none opacity-50" dangerouslySetInnerHTML={{ __html: chapter.content }} />
+              <div
+                className="blur-sm select-none opacity-50"
+                dangerouslySetInnerHTML={{ __html: DOMPurify.sanitize(chapter.content) }}
+              />
               <div className="absolute inset-0 bg-gradient-to-t from-background to-transparent opacity-50" />
             </div>
           ) : (
-            <div dangerouslySetInnerHTML={{ __html: chapter.content }} />
+            <div dangerouslySetInnerHTML={{ __html: DOMPurify.sanitize(chapter.content) }} />
           )}
         </div>
 
+        {/* Banner Quảng Cáo & Tiếp Thị Cuối Chương */}
+        <div className="mt-12">
+          <AffiliateBanner placement="CHAPTER_BOTTOM" />
+        </div>
+
         {/* Bottom Navigation */}
-        <div className="mt-16 flex items-center justify-between">
+        <div className="mt-12 flex items-center justify-between">
           {prevChapter ? (
-            <Link href={`/truyen/${slug}/${prevChapter.chapterNumber}`} className={buttonVariants({ variant: "outline" }) + " border-current/20 hover:bg-black/5 dark:hover:bg-white/5 bg-transparent"}>
+            <Button
+              variant="outline"
+              onClick={() => handleNavigateChapter(prevChapter.chapterNumber)}
+              className="border-current/20 hover:bg-black/5 dark:hover:bg-white/5 bg-transparent cursor-pointer"
+            >
               <ChevronLeft className="w-4 h-4 mr-2" /> Chương Trước
-            </Link>
+            </Button>
           ) : (
-            <Button variant="outline" disabled className="border-current/20 bg-transparent">
+            <Button
+              variant="outline"
+              disabled
+              className="border-current/20 bg-transparent"
+            >
               <ChevronLeft className="w-4 h-4 mr-2" /> Chương Trước
             </Button>
           )}
@@ -178,23 +264,40 @@ export default function ReadingPage() {
           </Link>
 
           {nextChapter ? (
-            <Link href={`/truyen/${slug}/${nextChapter.chapterNumber}`} className={buttonVariants({ variant: "outline" }) + " border-current/20 hover:bg-black/5 dark:hover:bg-white/5 bg-transparent"}>
+            <Button
+              variant="outline"
+              onClick={() => handleNavigateChapter(nextChapter.chapterNumber)}
+              className="border-current/20 hover:bg-black/5 dark:hover:bg-white/5 bg-transparent cursor-pointer"
+            >
               Chương Sau <ChevronRight className="w-4 h-4 ml-2" />
-            </Link>
+            </Button>
           ) : (
-            <Button variant="outline" disabled className="border-current/20 bg-transparent">
+            <Button
+              variant="outline"
+              disabled
+              className="border-current/20 bg-transparent"
+            >
               Chương Sau <ChevronRight className="w-4 h-4 ml-2" />
             </Button>
           )}
         </div>
+
+        {/* Thảo luận / Bình luận theo chương */}
+        {chapter.story_id && (
+          <CommentSection
+            storyId={Number(chapter.story_id)}
+            chapterId={Number(chapter.id)}
+            title={`Thảo luận về Chương ${chapterId}`}
+          />
+        )}
       </div>
 
       {/* Audio Player */}
-      <AudioPlayer 
-        storyId={chapter.story_id} 
-        chapterId={chapter.id} 
-        chapterTitle={chapter.title} 
-        initialProgress={(chapter as any).progress_seconds || 0} 
+      <AudioPlayer
+        storyId={chapter.story_id}
+        chapterId={chapter.id}
+        chapterTitle={chapter.title}
+        initialProgress={(chapter as any).progress_seconds || 0}
       />
 
       {/* VIP Modal */}

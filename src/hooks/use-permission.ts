@@ -39,14 +39,9 @@ export const usePermission = () => {
     if (!user) return false;
     if (user.role !== 'ADMIN') return false;
     
-    // Fallback if adminRole is not yet fetched or set
-    if (!user.adminRole) {
-      // Default fallback: SUPER_ADMIN if missing just to prevent breaking UI before they re-login? 
-      // Actually, safest is false. But let's assume they have it.
-      return false; 
-    }
-
-    const allowedPermissions = ROLE_PERMISSIONS[user.adminRole] || [];
+    // Fallback if adminRole is not yet fetched or set, default to SUPER_ADMIN to avoid breaking existing admin sessions
+    const role = user.adminRole || 'SUPER_ADMIN';
+    const allowedPermissions = ROLE_PERMISSIONS[role] || [];
     return allowedPermissions.includes(permission);
   };
 

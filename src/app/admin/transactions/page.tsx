@@ -6,20 +6,35 @@ import { useAdminTransactions } from '@/hooks/use-admin';
 import { Skeleton } from '@/components/ui/skeleton';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { motion, AnimatePresence } from 'framer-motion';
-import { CreditCard, ArrowDownLeft, ArrowUpRight, CheckCircle2, Clock, Ban, TerminalSquare } from 'lucide-react';
+import { CreditCard, ArrowDownLeft, ArrowUpRight, CheckCircle2, Clock, Ban, TerminalSquare, RotateCcw } from 'lucide-react';
 import { format } from 'date-fns';
 
 export default function AdminTransactionsPage() {
   const [page, setPage] = useState(1);
   const [typeFilter, setTypeFilter] = useState("all");
   const [statusFilter, setStatusFilter] = useState("all");
+  const [fromDate, setFromDate] = useState("");
+  const [toDate, setToDate] = useState("");
+  const [sortOrder, setSortOrder] = useState<"DESC" | "ASC">("DESC");
 
   const { data, isLoading } = useAdminTransactions(
     page, 
     20, 
     typeFilter === "all" ? "" : typeFilter, 
-    statusFilter === "all" ? "" : statusFilter
+    statusFilter === "all" ? "" : statusFilter,
+    fromDate,
+    toDate,
+    sortOrder
   );
+
+  const handleResetFilters = () => {
+    setTypeFilter("all");
+    setStatusFilter("all");
+    setFromDate("");
+    setToDate("");
+    setSortOrder("DESC");
+    setPage(1);
+  };
 
     const getTypeLabel = (type: string) => {
       switch (type) {
@@ -45,40 +60,95 @@ export default function AdminTransactionsPage() {
   return (
     <div className="space-y-12">
       {/* Header Section */}
-      <div className="flex flex-col lg:flex-row lg:items-end justify-between gap-8 pb-8 border-b border-zinc-900">
+      <div className="flex flex-col gap-6 pb-6 border-b border-zinc-900">
         <div>
-          <h1 className="text-4xl md:text-6xl font-outfit font-medium tracking-tight text-white mb-2 uppercase">
+          <h1 className="text-4xl md:text-5xl font-outfit font-medium tracking-tight text-white mb-2 uppercase">
             Sổ Cái Giao Dịch
           </h1>
-          <p className="text-zinc-500 font-mono text-sm tracking-wide uppercase">
-            Lịch sử không thể sửa đổi của mọi hoạt động giao dịch
+          <p className="text-zinc-500 font-mono text-xs tracking-wide uppercase">
+            Lịch sử giao dịch, nạp xu, rút tiền và mở khóa chương
           </p>
         </div>
         
-        <div className="flex flex-col sm:flex-row gap-[1px] w-full lg:w-auto bg-zinc-900 border border-zinc-900">
-          <Select value={typeFilter} onValueChange={(v) => { setTypeFilter((v as string) || "all"); setPage(1); }}>
-            <SelectTrigger className="w-full sm:w-48 bg-black border-none focus:ring-0 h-12 text-zinc-500 rounded-none font-mono text-xs tracking-widest uppercase">
-              <SelectValue placeholder="LOẠI GIAO DỊCH" />
-            </SelectTrigger>
-            <SelectContent className="bg-black border border-zinc-900 rounded-none text-zinc-400 font-mono text-xs tracking-widest uppercase">
-              <SelectItem value="all">Tất Cả Loại</SelectItem>
-              <SelectItem value="DEPOSIT">Nạp Tiền</SelectItem>
-              <SelectItem value="UNLOCK_CHAPTER">Mua Chương</SelectItem>
-              <SelectItem value="DONATE">Tặng Quà</SelectItem>
-              <SelectItem value="WITHDRAW">Rút Tiền</SelectItem>
-            </SelectContent>
-          </Select>
-          <Select value={statusFilter} onValueChange={(v) => { setStatusFilter((v as string) || "all"); setPage(1); }}>
-            <SelectTrigger className="w-full sm:w-48 bg-black border-none focus:ring-0 h-12 text-zinc-500 rounded-none font-mono text-xs tracking-widest uppercase">
-              <SelectValue placeholder="TRẠNG THÁI" />
-            </SelectTrigger>
-            <SelectContent className="bg-black border border-zinc-900 rounded-none text-zinc-400 font-mono text-xs tracking-widest uppercase">
-              <SelectItem value="all">Tất Cả Trạng Thái</SelectItem>
-              <SelectItem value="SUCCESS">Thành Công</SelectItem>
-              <SelectItem value="PENDING">Chờ Xử Lý</SelectItem>
-              <SelectItem value="FAILED">Thất Bại</SelectItem>
-            </SelectContent>
-          </Select>
+        {/* Filters and Sorting Toolbar */}
+        <div className="flex flex-wrap items-center gap-3 bg-zinc-950 p-4 border border-zinc-900">
+          <div className="w-full sm:w-auto">
+            <Select value={typeFilter} onValueChange={(v) => { setTypeFilter((v as string) || "all"); setPage(1); }}>
+              <SelectTrigger className="w-full sm:w-44 bg-black border-zinc-800 text-zinc-300 rounded-none font-mono text-xs tracking-wider uppercase h-10">
+                <SelectValue placeholder="LOẠI GIAO DỊCH" />
+              </SelectTrigger>
+              <SelectContent className="bg-black border border-zinc-800 rounded-none text-zinc-300 font-mono text-xs tracking-wider uppercase">
+                <SelectItem value="all">Tất Cả Loại</SelectItem>
+                <SelectItem value="DEPOSIT">Nạp Tiền</SelectItem>
+                <SelectItem value="UNLOCK_CHAPTER">Mua Chương</SelectItem>
+                <SelectItem value="DONATE">Tặng Quà</SelectItem>
+                <SelectItem value="WITHDRAW">Rút Tiền</SelectItem>
+              </SelectContent>
+            </Select>
+          </div>
+
+          <div className="w-full sm:w-auto">
+            <Select value={statusFilter} onValueChange={(v) => { setStatusFilter((v as string) || "all"); setPage(1); }}>
+              <SelectTrigger className="w-full sm:w-44 bg-black border-zinc-800 text-zinc-300 rounded-none font-mono text-xs tracking-wider uppercase h-10">
+                <SelectValue placeholder="TRẠNG THÁI" />
+              </SelectTrigger>
+              <SelectContent className="bg-black border border-zinc-800 rounded-none text-zinc-300 font-mono text-xs tracking-wider uppercase">
+                <SelectItem value="all">Tất Cả Trạng Thái</SelectItem>
+                <SelectItem value="SUCCESS">Thành Công</SelectItem>
+                <SelectItem value="PENDING">Chờ Xử Lý</SelectItem>
+                <SelectItem value="FAILED">Thất Bại</SelectItem>
+              </SelectContent>
+            </Select>
+          </div>
+
+          {/* Date Pickers */}
+          <div className="flex items-center gap-2 w-full sm:w-auto">
+            <div className="flex items-center gap-2 bg-black border border-zinc-800 px-3 h-10">
+              <span className="text-[10px] font-mono uppercase text-zinc-500">Từ:</span>
+              <input
+                type="date"
+                value={fromDate}
+                onChange={(e) => { setFromDate(e.target.value); setPage(1); }}
+                className="bg-transparent text-zinc-300 font-mono text-xs focus:outline-none [color-scheme:dark]"
+              />
+            </div>
+
+            <div className="flex items-center gap-2 bg-black border border-zinc-800 px-3 h-10">
+              <span className="text-[10px] font-mono uppercase text-zinc-500">Đến:</span>
+              <input
+                type="date"
+                value={toDate}
+                onChange={(e) => { setToDate(e.target.value); setPage(1); }}
+                className="bg-transparent text-zinc-300 font-mono text-xs focus:outline-none [color-scheme:dark]"
+              />
+            </div>
+          </div>
+
+          {/* Sort Order */}
+          <div className="w-full sm:w-auto">
+            <Select value={sortOrder} onValueChange={(v) => { setSortOrder(v as any); setPage(1); }}>
+              <SelectTrigger className="w-full sm:w-44 bg-black border-zinc-800 text-zinc-300 rounded-none font-mono text-xs tracking-wider uppercase h-10">
+                <SelectValue placeholder="SẮP XẾP" />
+              </SelectTrigger>
+              <SelectContent className="bg-black border border-zinc-800 rounded-none text-zinc-300 font-mono text-xs tracking-wider uppercase">
+                <SelectItem value="DESC">Mới nhất trước</SelectItem>
+                <SelectItem value="ASC">Cũ nhất trước</SelectItem>
+              </SelectContent>
+            </Select>
+          </div>
+
+          {/* Reset Filters */}
+          {(typeFilter !== "all" || statusFilter !== "all" || fromDate || toDate || sortOrder !== "DESC") && (
+            <Button
+              variant="ghost"
+              size="sm"
+              onClick={handleResetFilters}
+              className="rounded-none border border-zinc-800 text-zinc-400 hover:text-white hover:bg-zinc-900 font-mono text-[10px] uppercase tracking-widest h-10 px-3"
+            >
+              <RotateCcw className="w-3 h-3 mr-1.5" />
+              Đặt lại
+            </Button>
+          )}
         </div>
       </div>
 

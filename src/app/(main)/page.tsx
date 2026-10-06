@@ -5,6 +5,7 @@ import { HeroBanner } from "@/components/home/hero-banner";
 import { SectionNewUpdates } from "@/components/home/section-new-updates";
 import { SectionAudioHot } from "@/components/home/section-audio-hot";
 import { SectionLeaderboard } from "@/components/home/section-leaderboard";
+import { AffiliateBanner } from "@/components/ads/affiliate-banner";
 
 export default function Home() {
   return (
@@ -33,6 +34,16 @@ export default function Home() {
           transition={{ duration: 0.6 }}
         >
           <SectionNewUpdates />
+        </motion.section>
+
+        {/* Affiliate / Deal Shopee & TikTok Banner Section */}
+        <motion.section
+          initial={{ opacity: 0, y: 20 }}
+          whileInView={{ opacity: 1, y: 0 }}
+          viewport={{ once: true, margin: "-50px" }}
+          transition={{ duration: 0.6 }}
+        >
+          <AffiliateBanner placement="HOME_BANNER" />
         </motion.section>
 
         {/* Audio Hot Section */}

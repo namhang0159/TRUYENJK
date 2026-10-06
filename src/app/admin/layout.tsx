@@ -5,7 +5,7 @@ import Link from 'next/link';
 import { usePathname } from 'next/navigation';
 import { useAuth } from '@/hooks/use-auth';
 import { usePermission, Permission } from '@/hooks/use-permission';
-import { LayoutDashboard, Book, Users, ShieldAlert, LogOut, Menu, Tags, CreditCard, Settings, Command, FileText, Landmark, UserPlus, TrendingUp, Flag, Headphones } from 'lucide-react';
+import { LayoutDashboard, Book, Users, ShieldAlert, LogOut, Menu, Tags, CreditCard, Settings, Command, FileText, Landmark, UserPlus, TrendingUp, Flag, Headphones, Gift, ShoppingBag, Music2 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Sheet, SheetContent, SheetTrigger } from '@/components/ui/sheet';
 import { motion } from 'framer-motion';
@@ -18,6 +18,14 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
   // Mounted state for hydration fix
   const [mounted, setMounted] = useState(false);
   useEffect(() => setMounted(true), []);
+
+  if (!mounted) {
+    return (
+      <div className="flex h-[100dvh] items-center justify-center bg-black text-white font-sans">
+        <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-white/20 border-t-white"></div>
+      </div>
+    );
+  }
 
   if (!user || user.role !== 'ADMIN') {
     return (
@@ -53,8 +61,11 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
     { href: "/transactions", label: "Giao Dịch", icon: CreditCard, permission: 'VIEW_REVENUE' as Permission },
     { href: "/payouts", label: "Rút Tiền", icon: Landmark, permission: 'VIEW_REVENUE' as Permission },
     { href: "/revenue", label: "Doanh Thu", icon: TrendingUp, permission: 'VIEW_REVENUE' as Permission },
+    { href: "/gifts", label: "Quản Lý Quà Tặng", icon: Gift, permission: 'VIEW_REVENUE' as Permission },
+    { href: "/ads", label: "Quảng Cáo / Tiếp Thị", icon: ShoppingBag },
     { href: "/reports", label: "Báo Cáo", icon: Flag, permission: 'HIDE_COMMENT' as Permission },
     { href: "/audios", label: "Quản Lý Audio", icon: Headphones, permission: 'APPROVE_STORY' as Permission },
+    { href: "/bgm", label: "Nhạc Nền Audio", icon: Music2 },
     { href: "/settings", label: "Cài Đặt", icon: Settings },
   ].filter(route => !route.permission || hasPermission(route.permission));
 
@@ -109,7 +120,7 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
   if (!mounted) return null;
 
   return (
-    <div className="flex h-[100dvh] overflow-hidden bg-black text-zinc-100 selection:bg-white selection:text-black font-sans">
+    <div className="dark flex h-[100dvh] overflow-hidden bg-black text-zinc-100 selection:bg-white selection:text-black font-sans">
       
       {/* Floating Sidebar (Desktop) */}
       <div className="hidden md:flex flex-col z-20 w-[260px] h-full shrink-0">

@@ -47,10 +47,82 @@ export const useCreateDeposit = () => {
   });
 };
 
+export interface StoryTopDonator {
+  reader_id: number;
+  total_coins?: number;
+  total_donated?: number;
+  donation_count?: number;
+  reader?: {
+    id: number;
+    display_name?: string;
+    username?: string;
+    avatar_url?: string;
+    account?: {
+      id?: number;
+      display_name?: string;
+    };
+  };
+}
+
+export interface StoryRecentDonation {
+  id: number;
+  story_id: number;
+  reader_id: number;
+  coin_amount: number;
+  item_name: string;
+  message?: string;
+  created_at: string;
+  reader?: {
+    id: number;
+    display_name?: string;
+    username?: string;
+    avatar_url?: string;
+  };
+}
+
+export interface StoryDonationsData {
+  topDonators: StoryTopDonator[];
+  recentDonations: StoryRecentDonation[];
+  totalCoins: number;
+  totalCount: number;
+}
+
+export interface GiftItem {
+  id: number;
+  name: string;
+  code: string;
+  coin_price: number;
+  icon: string;
+  tier: "COMMON" | "RARE" | "EPIC" | "LEGENDARY" | "MYTHIC";
+  color: string;
+  description: string;
+  sort_order: number;
+  is_active: boolean;
+}
+
+export const useGifts = () => {
+  return useQuery({
+    queryKey: ["gifts"],
+    queryFn: async (): Promise<GiftItem[]> => {
+      const { data } = await axiosInstance.get("/finance/gifts");
+      return data.data;
+    },
+  });
+};
+
+export interface DonatePayload {
+  story_id: number | string;
+  item_name?: string;
+  coin_amount?: number;
+  gift_id?: number;
+  quantity?: number;
+  message?: string;
+}
+
 export const useDonate = () => {
   const queryClient = useQueryClient();
   return useMutation({
-    mutationFn: async (payload: { story_id: number; item_name: string; coin_amount: number; message?: string }) => {
+    mutationFn: async (payload: DonatePayload) => {
       const { data } = await axiosInstance.post("/finance/donate", payload);
       return data;
     },
@@ -58,16 +130,31 @@ export const useDonate = () => {
       queryClient.invalidateQueries({ queryKey: ["wallet"] });
       queryClient.invalidateQueries({ queryKey: ["transactions"] });
       queryClient.invalidateQueries({ queryKey: ["topDonators"] });
+      queryClient.invalidateQueries({ queryKey: ["storyDonations"] });
     },
   });
 };
 
-export const useTopDonators = () => {
+export const useTopDonators = (storyId?: number | string) => {
   return useQuery({
-    queryKey: ["topDonators"],
+    queryKey: ["topDonators", storyId],
     queryFn: async () => {
-      const { data } = await axiosInstance.get("/finance/top-donators");
+      const { data } = await axiosInstance.get("/finance/top-donators", {
+        params: storyId ? { storyId } : undefined,
+      });
       return data.data;
     },
+  });
+};
+
+export const useStoryDonations = (storyId?: number | string) => {
+  return useQuery({
+    queryKey: ["storyDonations", storyId],
+    queryFn: async (): Promise<StoryDonationsData | null> => {
+      if (!storyId) return null;
+      const { data } = await axiosInstance.get(`/finance/stories/${storyId}/donations`);
+      return data.data;
+    },
+    enabled: Boolean(storyId),
   });
 };

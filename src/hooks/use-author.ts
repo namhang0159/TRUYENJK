@@ -11,6 +11,16 @@ export const useAuthorStories = () => {
   });
 };
 
+export const useAuthorOverview = () => {
+  return useQuery({
+    queryKey: ["authorOverview"],
+    queryFn: async () => {
+      const { data } = await axiosInstance.get("/author/overview");
+      return data.data;
+    },
+  });
+};
+
 export const useCreateStory = () => {
   const queryClient = useQueryClient();
   return useMutation({

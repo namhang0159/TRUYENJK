@@ -164,9 +164,9 @@ export const useToggleUserStatus = () => {
   });
 };
 
-export const useAdminTransactions = (page = 1, limit = 20, type = "", status = "") => {
+export const useAdminTransactions = (page = 1, limit = 20, type = "", status = "", fromDate = "", toDate = "", sortOrder = "DESC") => {
   return useQuery({
-    queryKey: ["adminTransactions", page, limit, type, status],
+    queryKey: ["adminTransactions", page, limit, type, status, fromDate, toDate, sortOrder],
     queryFn: async () => {
       const params = new URLSearchParams({
         page: page.toString(),
@@ -174,6 +174,9 @@ export const useAdminTransactions = (page = 1, limit = 20, type = "", status = "
       });
       if (type) params.append("type", type);
       if (status) params.append("status", status);
+      if (fromDate) params.append("from_date", fromDate);
+      if (toDate) params.append("to_date", toDate);
+      if (sortOrder) params.append("sort_order", sortOrder);
       
       const { data } = await axiosInstance.get(`/admin/transactions?${params.toString()}`);
       return data.data;
@@ -405,6 +408,126 @@ export const useResolveReport = () => {
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ["adminReports"] });
+    },
+  });
+};
+
+// --- Gift Management ---
+export interface AdminGiftItem {
+  id: number;
+  name: string;
+  code: string;
+  coin_price: number;
+  icon: string;
+  tier: "COMMON" | "RARE" | "EPIC" | "LEGENDARY" | "MYTHIC";
+  color: string;
+  description: string;
+  sort_order: number;
+  is_active: boolean;
+  sender_count: number;
+  total_sent: number;
+  total_revenue: number;
+  created_at: string;
+  updated_at: string;
+}
+
+export interface AdminGiftsResponse {
+  gifts: AdminGiftItem[];
+  summary: {
+    totalGifts: number;
+    activeGifts: number;
+    totalDonations: number;
+    totalRevenueCoins: number;
+    topGift: AdminGiftItem | null;
+  };
+}
+
+export const useAdminGifts = () => {
+  return useQuery({
+    queryKey: ["adminGifts"],
+    queryFn: async (): Promise<AdminGiftsResponse> => {
+      const { data } = await axiosInstance.get("/admin/gifts");
+      return data.data;
+    },
+  });
+};
+
+export const useCreateGift = () => {
+  const queryClient = useQueryClient();
+  return useMutation({
+    mutationFn: async (payload: {
+      name: string;
+      code?: string;
+      coin_price: number;
+      icon?: string;
+      tier?: string;
+      color?: string;
+      description?: string;
+      sort_order?: number;
+      is_active?: boolean;
+    }) => {
+      const { data } = await axiosInstance.post("/admin/gifts", payload);
+      return data.data;
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ["adminGifts"] });
+      queryClient.invalidateQueries({ queryKey: ["gifts"] });
+    },
+  });
+};
+
+export const useUpdateGift = () => {
+  const queryClient = useQueryClient();
+  return useMutation({
+    mutationFn: async ({
+      id,
+      ...payload
+    }: {
+      id: number;
+      name?: string;
+      code?: string;
+      coin_price?: number;
+      icon?: string;
+      tier?: string;
+      color?: string;
+      description?: string;
+      sort_order?: number;
+      is_active?: boolean;
+    }) => {
+      const { data } = await axiosInstance.put(`/admin/gifts/${id}`, payload);
+      return data.data;
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ["adminGifts"] });
+      queryClient.invalidateQueries({ queryKey: ["gifts"] });
+    },
+  });
+};
+
+export const useDeleteGift = () => {
+  const queryClient = useQueryClient();
+  return useMutation({
+    mutationFn: async (id: number) => {
+      const { data } = await axiosInstance.delete(`/admin/gifts/${id}`);
+      return data.data;
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ["adminGifts"] });
+      queryClient.invalidateQueries({ queryKey: ["gifts"] });
+    },
+  });
+};
+
+export const useToggleGiftActive = () => {
+  const queryClient = useQueryClient();
+  return useMutation({
+    mutationFn: async (id: number) => {
+      const { data } = await axiosInstance.patch(`/admin/gifts/${id}/toggle-active`);
+      return data.data;
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ["adminGifts"] });
+      queryClient.invalidateQueries({ queryKey: ["gifts"] });
     },
   });
 };

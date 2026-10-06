@@ -11,19 +11,11 @@ import {
   Tooltip, 
   ResponsiveContainer 
 } from 'recharts';
-import { BookOpen, Headphones, Coins, TrendingUp, Award, Zap, ChevronRight } from 'lucide-react';
+import { BookOpen, Headphones, Coins, TrendingUp, Award, Zap } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import Link from 'next/link';
-
-const data = [
-  { name: 'T2', reads: 4000, listens: 2400 },
-  { name: 'T3', reads: 3000, listens: 1398 },
-  { name: 'T4', reads: 2000, listens: 9800 },
-  { name: 'T5', reads: 2780, listens: 3908 },
-  { name: 'T6', reads: 1890, listens: 4800 },
-  { name: 'T7', reads: 2390, listens: 3800 },
-  { name: 'CN', reads: 3490, listens: 4300 },
-];
+import { useAuthorOverview } from '@/hooks/use-author';
+import { Skeleton } from '@/components/ui/skeleton';
 
 const containerVariants: Variants = {
   hidden: { opacity: 0 },
@@ -39,6 +31,20 @@ const itemVariants: Variants = {
 };
 
 export default function StudioDashboard() {
+  const { data: overview, isLoading } = useAuthorOverview();
+
+  const chartData = overview?.performance_7days || [
+    { name: 'T2', reads: 0, listens: 0 },
+    { name: 'T3', reads: 0, listens: 0 },
+    { name: 'T4', reads: 0, listens: 0 },
+    { name: 'T5', reads: 0, listens: 0 },
+    { name: 'T6', reads: 0, listens: 0 },
+    { name: 'T7', reads: 0, listens: 0 },
+    { name: 'CN', reads: 0, listens: 0 },
+  ];
+
+  const topStory = overview?.top_stories?.[0];
+
   return (
     <div className="space-y-8">
       {/* Header */}
@@ -51,11 +57,11 @@ export default function StudioDashboard() {
           <h1 className="text-3xl font-light tracking-tight text-white mb-2 flex items-center gap-3">
             Tổng quan Studio
             <span className="px-2 py-0.5 border border-zinc-800 bg-zinc-900 text-zinc-300 font-mono text-[10px] uppercase tracking-widest flex items-center gap-1">
-              <Award className="w-3 h-3" /> Bậc Thầy
+              <Award className="w-3 h-3 text-amber-500" /> {overview?.pen_name || 'Tác giả'}
             </span>
           </h1>
           <p className="text-zinc-500 font-mono text-sm uppercase tracking-widest">
-            Theo dõi hiệu suất sáng tạo và doanh thu của bạn trong tuần.
+            Theo dõi hiệu suất sáng tạo và doanh thu thực tế của bạn.
           </p>
         </motion.div>
 
@@ -63,9 +69,11 @@ export default function StudioDashboard() {
           initial={{ opacity: 0, x: 20 }}
           animate={{ opacity: 1, x: 0 }}
         >
-          <Button render={<Link href="/studio/stories/new" />} nativeButton={false} variant="outline" className="rounded-none border-zinc-800 bg-transparent text-white hover:bg-white hover:text-black transition-colors font-mono uppercase text-xs">
-            <Zap className="w-3 h-3 mr-2" /> Viết chương mới
-          </Button>
+          <Link href="/studio/stories/new">
+            <Button variant="outline" className="rounded-none border-zinc-800 bg-transparent text-white hover:bg-white hover:text-black transition-colors font-mono uppercase text-xs">
+              <Zap className="w-3 h-3 mr-2" /> Tạo truyện mới
+            </Button>
+          </Link>
         </motion.div>
       </div>
       
@@ -83,9 +91,11 @@ export default function StudioDashboard() {
             <BookOpen className="text-indigo-500 h-4 w-4" />
           </div>
           <div className="relative z-10">
-            <div className="text-2xl font-light text-white font-mono mb-2">19,540</div>
-            <div className="flex items-center text-[10px] font-mono uppercase text-emerald-500 tracking-widest">
-              <TrendingUp className="w-3 h-3 mr-1" /> +20.1% Tuần trước
+            <div className="text-2xl font-light text-white font-mono mb-2">
+              {isLoading ? <Skeleton className="h-8 w-24 bg-zinc-800" /> : (overview?.total_reads || 0).toLocaleString()}
+            </div>
+            <div className="flex items-center text-[10px] font-mono uppercase text-zinc-500 tracking-widest">
+              Tổng số tác phẩm: {overview?.total_stories || 0}
             </div>
           </div>
         </motion.div>
@@ -97,9 +107,11 @@ export default function StudioDashboard() {
             <Headphones className="text-teal-500 h-4 w-4" />
           </div>
           <div className="relative z-10">
-            <div className="text-2xl font-light text-white font-mono mb-2">14,204</div>
-            <div className="flex items-center text-[10px] font-mono uppercase text-emerald-500 tracking-widest">
-              <TrendingUp className="w-3 h-3 mr-1" /> +15.0% Tuần trước
+            <div className="text-2xl font-light text-white font-mono mb-2">
+              {isLoading ? <Skeleton className="h-8 w-24 bg-zinc-800" /> : (overview?.total_listens || 0).toLocaleString()}
+            </div>
+            <div className="flex items-center text-[10px] font-mono uppercase text-zinc-500 tracking-widest">
+              Tổng số chương: {overview?.total_chapters || 0}
             </div>
           </div>
         </motion.div>
@@ -112,9 +124,11 @@ export default function StudioDashboard() {
           </div>
           <div className="relative z-10 flex items-end justify-between">
             <div>
-              <div className="text-2xl font-light text-amber-500 font-mono mb-2">54,000</div>
+              <div className="text-2xl font-light text-amber-500 font-mono mb-2">
+                {isLoading ? <Skeleton className="h-8 w-24 bg-zinc-800" /> : (overview?.total_revenue || 0).toLocaleString()}
+              </div>
               <div className="flex items-center text-[10px] font-mono uppercase text-emerald-500 tracking-widest">
-                <TrendingUp className="w-3 h-3 mr-1" /> +8.5% Tuần trước
+                <TrendingUp className="w-3 h-3 mr-1" /> Doanh thu tích lũy
               </div>
             </div>
             <Link href="/studio/withdrawals">
@@ -133,7 +147,7 @@ export default function StudioDashboard() {
           
           <div className="flex-1 w-full min-h-[250px]">
             <ResponsiveContainer width="100%" height="100%">
-              <AreaChart data={data} margin={{ top: 0, right: 0, left: -20, bottom: 0 }}>
+              <AreaChart data={chartData} margin={{ top: 0, right: 0, left: -20, bottom: 0 }}>
                 <defs>
                   <linearGradient id="colorReads" x1="0" y1="0" x2="0" y2="1">
                     <stop offset="5%" stopColor="#fff" stopOpacity={0.2}/>
@@ -162,44 +176,55 @@ export default function StudioDashboard() {
         <motion.div variants={itemVariants} className="bg-black border border-zinc-900 p-6 flex flex-col justify-between">
           <div>
             <h3 className="text-lg font-medium text-white mb-4">Truyện nổi bật của bạn</h3>
-            <div className="flex items-center gap-4 bg-zinc-950 border border-zinc-900 p-3 group hover:border-zinc-700 transition-colors">
-              <div className="w-12 h-16 bg-zinc-900 overflow-hidden shrink-0">
-                <img src="https://picsum.photos/seed/studio/200/300" alt="Cover" className="w-full h-full object-cover grayscale opacity-80 group-hover:grayscale-0 group-hover:opacity-100 transition-all" />
+            {topStory ? (
+              <Link href={`/studio/stories/${topStory.id}`}>
+                <div className="flex items-center gap-4 bg-zinc-950 border border-zinc-900 p-3 group hover:border-zinc-700 transition-colors cursor-pointer">
+                  <div className="w-12 h-16 bg-zinc-900 overflow-hidden shrink-0 border border-zinc-800">
+                    <img 
+                      src={topStory.cover_image?.startsWith('http') ? topStory.cover_image : `http://localhost:8000${topStory.cover_image || ''}`} 
+                      alt="Cover" 
+                      onError={(e) => { (e.currentTarget as any).src = 'https://picsum.photos/seed/studio/200/300'; }}
+                      className="w-full h-full object-cover grayscale opacity-80 group-hover:grayscale-0 group-hover:opacity-100 transition-all" 
+                    />
+                  </div>
+                  <div>
+                    <h4 className="text-zinc-100 font-medium group-hover:text-white transition-colors line-clamp-1">{topStory.title}</h4>
+                    <div className="text-[10px] text-zinc-500 font-mono mt-1 uppercase tracking-widest">
+                      {topStory.status} • {topStory.total_chapters} chương • {topStory.view_count} đọc
+                    </div>
+                  </div>
+                </div>
+              </Link>
+            ) : (
+              <div className="p-4 border border-zinc-900 bg-zinc-950 text-zinc-500 font-mono text-xs text-center">
+                Bạn chưa có truyện nào.
               </div>
-              <div>
-                <h4 className="text-zinc-100 font-medium group-hover:text-white transition-colors line-clamp-1">Đấu La Đại Lục - Hệ Thống</h4>
-                <div className="text-[10px] text-zinc-500 font-mono mt-1 uppercase tracking-widest">Đang tiến hành • 124 chương</div>
-              </div>
-            </div>
+            )}
           </div>
 
           <div className="mt-8">
-            <h3 className="text-[10px] text-zinc-500 font-mono uppercase tracking-widest mb-4">Tiến độ nhiệm vụ</h3>
-            <div className="space-y-6">
-              <div>
-                <div className="flex justify-between text-[10px] font-mono uppercase tracking-widest mb-2">
-                  <span className="text-zinc-400">Đăng chương mới (5/7 ngày)</span>
-                  <span className="text-white">70%</span>
-                </div>
-                <div className="h-1 w-full bg-zinc-900">
-                  <div className="h-full bg-white w-[70%]" />
-                </div>
+            <h3 className="text-[10px] text-zinc-500 font-mono uppercase tracking-widest mb-4">Tổng quan xuất bản</h3>
+            <div className="space-y-4">
+              <div className="flex justify-between text-[11px] font-mono uppercase tracking-widest border-b border-zinc-900 pb-2">
+                <span className="text-zinc-500">Tổng truyện đã tạo:</span>
+                <span className="text-white font-medium">{overview?.total_stories || 0}</span>
               </div>
-              <div>
-                <div className="flex justify-between text-[10px] font-mono uppercase tracking-widest mb-2">
-                  <span className="text-zinc-400">Đạt 20,000 views tuần</span>
-                  <span className="text-white">95%</span>
-                </div>
-                <div className="h-1 w-full bg-zinc-900">
-                  <div className="h-full bg-white w-[95%]" />
-                </div>
+              <div className="flex justify-between text-[11px] font-mono uppercase tracking-widest border-b border-zinc-900 pb-2">
+                <span className="text-zinc-500">Tổng số chương viết:</span>
+                <span className="text-white font-medium">{overview?.total_chapters || 0}</span>
+              </div>
+              <div className="flex justify-between text-[11px] font-mono uppercase tracking-widest pb-2">
+                <span className="text-zinc-500">Lượt thích nhận được:</span>
+                <span className="text-emerald-500 font-medium">{overview?.total_likes || 0}</span>
               </div>
             </div>
           </div>
           
-          <Button variant="outline" className="w-full mt-8 rounded-none border-zinc-800 bg-transparent text-white hover:bg-white hover:text-black transition-colors font-mono uppercase text-[10px] tracking-widest">
-            Nhận thưởng tuần
-          </Button>
+          <Link href="/studio/stories" className="w-full mt-6">
+            <Button variant="outline" className="w-full rounded-none border-zinc-800 bg-transparent text-white hover:bg-white hover:text-black transition-colors font-mono uppercase text-[10px] tracking-widest">
+              Quản lý toàn bộ truyện
+            </Button>
+          </Link>
         </motion.div>
       </motion.div>
     </div>

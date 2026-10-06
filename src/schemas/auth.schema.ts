@@ -18,3 +18,9 @@ export const registerSchema = z.object({
 });
 
 export type RegisterSchemaType = z.infer<typeof registerSchema>;
+
+export const otpSchema = z.object({
+  otp: z.string().regex(/^\d{6}$/, "Mã OTP phải gồm 6 chữ số"),
+});
+
+export type OtpSchemaType = z.infer<typeof otpSchema>;

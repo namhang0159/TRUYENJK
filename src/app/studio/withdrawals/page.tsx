@@ -80,7 +80,7 @@ export default function WithdrawalsPage() {
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
     const numAmount = Number(amount);
-    
+
     if (!bankName) {
       alert("Vui lòng chọn ngân hàng.");
       return;
@@ -93,7 +93,7 @@ export default function WithdrawalsPage() {
       alert("Số dư không đủ!");
       return;
     }
-    
+
     createWithdrawal.mutate({
       amount: numAmount,
       bankName,
@@ -120,7 +120,7 @@ export default function WithdrawalsPage() {
 
   return (
     <div className="space-y-8 pb-10">
-      <motion.div 
+      <motion.div
         initial={{ opacity: 0, x: -20 }}
         animate={{ opacity: 1, x: 0 }}
         className="border-b border-zinc-900 pb-4"
@@ -133,7 +133,7 @@ export default function WithdrawalsPage() {
         </p>
       </motion.div>
 
-      <motion.div 
+      <motion.div
         variants={containerVariants}
         initial="hidden"
         animate="show"
@@ -141,7 +141,7 @@ export default function WithdrawalsPage() {
       >
         {/* Form tạo yêu cầu */}
         <motion.div variants={itemVariants} className="lg:col-span-3 border border-zinc-900 bg-black relative">
-          
+
           <div className="p-8">
             <div className="mb-8">
               <h2 className="text-lg font-light text-white flex items-center gap-2">
@@ -149,9 +149,9 @@ export default function WithdrawalsPage() {
               </h2>
               <p className="font-mono text-[10px] uppercase tracking-widest text-zinc-500 mt-2">Điền thông tin đích đến để khởi tạo quy trình thanh toán.</p>
             </div>
-            
+
             <form onSubmit={handleSubmit} className="space-y-6 relative z-10">
-              
+
               <div className="border border-zinc-900 bg-black p-6 space-y-4">
                 <div className="flex justify-between items-center">
                   <span className="font-mono text-[10px] uppercase tracking-widest text-zinc-500">Số dư khả dụng:</span>
@@ -160,7 +160,7 @@ export default function WithdrawalsPage() {
                     <span className="font-mono text-2xl font-light text-white">{currentBalance.toLocaleString()} <span className="text-emerald-500 text-lg">Xu</span></span>
                   </div>
                 </div>
-                
+
                 <div className="flex justify-between items-center text-sm px-2">
                   <span className="font-mono text-[10px] uppercase tracking-widest text-zinc-500">Tỉ lệ quy đổi:</span>
                   <span className="font-mono text-[10px] uppercase tracking-widest text-zinc-300">1 Xu = {exchangeRate.toLocaleString()} VNĐ</span>
@@ -179,23 +179,23 @@ export default function WithdrawalsPage() {
                     </SelectTrigger>
                     <SelectContent className="max-h-[300px] bg-black border-zinc-900 text-zinc-300 rounded-none">
                       {VIETNAM_BANKS.map((bank) => (
-                        <SelectItem key={bank} value={bank} className="hover:bg-zinc-900 focus:bg-zinc-900 focus:text-white font-mono text-[10px] uppercase tracking-widest rounded-none">{bank}</SelectItem>
+                        <SelectItem key={bank} value={bank} className="hover:bg-zinc-900 focus:bg-zinc-900 focus:text-white font-mono text-[10px] uppercase tracking-widest rounded-none"><span className="text-zinc-500">{bank}</span></SelectItem>
                       ))}
                     </SelectContent>
                   </Select>
                 </div>
-                
+
                 <div className="space-y-2">
                   <Label htmlFor="bankAccountNumber" className="flex items-center gap-2 font-mono text-[10px] uppercase tracking-widest text-zinc-500">
                     <FileText className="h-3 w-3" />
                     Số tài khoản
                   </Label>
-                  <Input 
-                    id="bankAccountNumber" 
-                    placeholder="Nhập số tài khoản" 
+                  <Input
+                    id="bankAccountNumber"
+                    placeholder="Nhập số tài khoản"
                     value={bankAccountNumber}
                     onChange={(e) => setBankAccountNumber(e.target.value)}
-                    required 
+                    required
                     className="bg-zinc-950 border-zinc-900 text-white focus:ring-0 focus:border-zinc-500 h-14 rounded-none font-mono text-xs"
                   />
                 </div>
@@ -205,12 +205,12 @@ export default function WithdrawalsPage() {
                     <User className="h-3 w-3" />
                     Tên chủ tài khoản
                   </Label>
-                  <Input 
-                    id="bankAccountName" 
-                    placeholder="Tên in hoa không dấu (VD: NGUYEN VAN A)" 
+                  <Input
+                    id="bankAccountName"
+                    placeholder="Tên in hoa không dấu (VD: NGUYEN VAN A)"
                     value={bankAccountName}
                     onChange={(e) => setBankAccountName(e.target.value.toUpperCase())}
-                    required 
+                    required
                     className="bg-zinc-950 border-zinc-900 text-white focus:ring-0 focus:border-zinc-500 h-14 rounded-none font-mono text-xs uppercase"
                   />
                 </div>
@@ -221,15 +221,15 @@ export default function WithdrawalsPage() {
                     Số Xu cần rút
                   </Label>
                   <div className="relative">
-                    <Input 
-                      id="amount" 
+                    <Input
+                      id="amount"
                       type="number"
                       placeholder="Tối thiểu 50,000"
                       min={50000}
                       max={currentBalance}
                       value={amount}
                       onChange={(e) => setAmount(e.target.value)}
-                      required 
+                      required
                       className="bg-zinc-950 border-zinc-900 focus:border-emerald-500 text-emerald-500 text-lg font-mono h-14 rounded-none focus:ring-0 pl-4 pr-16"
                     />
                     <div className="absolute right-4 top-1/2 -translate-y-1/2 text-[10px] text-emerald-500 font-mono tracking-widest">
@@ -251,9 +251,9 @@ export default function WithdrawalsPage() {
                 </motion.div>
               )}
 
-              <Button 
-                type="submit" 
-                disabled={createWithdrawal.isPending || currentBalance < 50000} 
+              <Button
+                type="submit"
+                disabled={createWithdrawal.isPending || currentBalance < 50000}
                 className="w-full rounded-none border-emerald-500/50 bg-emerald-500/10 text-emerald-500 hover:bg-emerald-500 hover:text-black font-mono text-[10px] uppercase tracking-widest transition-colors h-14 mt-6"
               >
                 {createWithdrawal.isPending ? (
@@ -316,7 +316,7 @@ export default function WithdrawalsPage() {
                           )}
                         </div>
                       </div>
-                      
+
                       <div className="text-[10px] font-mono tracking-widest uppercase bg-zinc-950 p-3 border border-zinc-900 text-zinc-500">
                         <div className="flex items-center gap-2">
                           <span className="text-zinc-600">ID:</span>

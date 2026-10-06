@@ -2,23 +2,24 @@
 
 import { useState } from "react";
 import { Button } from "@/components/ui/button";
-import { 
-  Dialog, 
-  DialogContent, 
-  DialogDescription, 
-  DialogHeader, 
-  DialogTitle 
+import {
+  Dialog,
+  DialogContent,
+  DialogDescription,
+  DialogHeader,
+  DialogTitle
 } from "@/components/ui/dialog";
 import { Textarea } from "@/components/ui/textarea";
 import { useCreateReport } from "@/hooks/use-stories";
 import { useAuthStore } from "@/store/auth-store";
 import { Label } from "@/components/ui/label";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
+import { toast } from "sonner";
 
 interface ReportModalProps {
   isOpen: boolean;
   onClose: () => void;
-  targetId: number;
+  targetId: number | string;
   targetType: 'STORY' | 'CHAPTER' | 'REVIEW';
 }
 
@@ -39,25 +40,29 @@ export function ReportModal({ isOpen, onClose, targetId, targetType }: ReportMod
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
     if (!isAuthenticated) {
-      alert("Vui lòng đăng nhập để báo cáo.");
+      toast.error("Vui lòng đăng nhập để báo cáo.");
       return;
     }
     if (!reason) {
-      alert("Vui lòng chọn lý do.");
+      toast.error("Vui lòng chọn lý do báo cáo.");
+      return;
+    }
+    if (!targetId) {
+      toast.error("Không tìm thấy thông tin đối tượng để báo cáo.");
       return;
     }
 
     createReport(
-      { target_type: targetType, target_id: targetId, reason, description },
+      { target_type: targetType, target_id: targetId as any, reason, description },
       {
         onSuccess: () => {
-          alert("Báo cáo của bạn đã được gửi. Chúng tôi sẽ xử lý sớm nhất có thể.");
+          toast.success("Báo cáo của bạn đã được gửi. Chúng tôi sẽ xử lý sớm nhất có thể.");
           setReason("");
           setDescription("");
           onClose();
         },
         onError: (err: any) => {
-          alert(err.response?.data?.message || "Có lỗi xảy ra");
+          toast.error(err.response?.data?.message || "Có lỗi xảy ra khi gửi báo cáo");
         }
       }
     );
@@ -83,7 +88,7 @@ export function ReportModal({ isOpen, onClose, targetId, targetType }: ReportMod
               <SelectContent className="bg-zinc-950 border-zinc-800 text-white">
                 {REASONS.map((r) => (
                   <SelectItem key={r} value={r} className="focus:bg-zinc-900 focus:text-white">
-                    {r}
+                    <span className="text-white">{r}</span>
                   </SelectItem>
                 ))}
               </SelectContent>
@@ -110,8 +115,8 @@ export function ReportModal({ isOpen, onClose, targetId, targetType }: ReportMod
             >
               Hủy
             </Button>
-            <Button 
-              type="submit" 
+            <Button
+              type="submit"
               disabled={isPending || !reason}
               className="bg-red-600 hover:bg-red-700 text-white"
             >

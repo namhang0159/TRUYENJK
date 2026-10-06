@@ -13,7 +13,8 @@ export function ReadingSettings() {
     theme, setTheme, 
     fontSize, setFontSize, 
     fontFamily, setFontFamily, 
-    lineHeight, setLineHeight 
+    lineHeight, setLineHeight,
+    maxWidth, setMaxWidth
   } = useReaderStore();
 
   const [mounted, setMounted] = useState(false);
@@ -132,6 +133,46 @@ export function ReadingSettings() {
               onClick={() => setLineHeight('relaxed')}
             >
               Rộng
+            </Button>
+          </div>
+        </div>
+
+        <div className="space-y-3">
+          <h4 className="font-medium text-sm flex items-center gap-2">
+            <Settings2 className="w-4 h-4" /> Khung Đọc
+          </h4>
+          <div className="grid grid-cols-4 gap-1.5">
+            <Button 
+              size="sm"
+              variant={maxWidth === 'sm' ? 'default' : 'outline'}
+              onClick={() => setMaxWidth('sm')}
+              className="text-xs px-2"
+            >
+              Hẹp
+            </Button>
+            <Button 
+              size="sm"
+              variant={maxWidth === 'md' ? 'default' : 'outline'}
+              onClick={() => setMaxWidth('md')}
+              className="text-xs px-2"
+            >
+              Chuẩn
+            </Button>
+            <Button 
+              size="sm"
+              variant={maxWidth === 'lg' ? 'default' : 'outline'}
+              onClick={() => setMaxWidth('lg')}
+              className="text-xs px-2"
+            >
+              Rộng
+            </Button>
+            <Button 
+              size="sm"
+              variant={maxWidth === 'xl' ? 'default' : 'outline'}
+              onClick={() => setMaxWidth('xl')}
+              className="text-xs px-2"
+            >
+              Cực đại
             </Button>
           </div>
         </div>

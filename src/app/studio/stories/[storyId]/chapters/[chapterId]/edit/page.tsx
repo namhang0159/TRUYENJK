@@ -28,6 +28,7 @@ import Link from 'next/link';
 import { useParams, useRouter } from 'next/navigation';
 import { useAuthorChapter, useUpdateChapter } from '@/hooks/use-author';
 import { Skeleton } from '@/components/ui/skeleton';
+import { toast } from 'sonner';
 
 const chapterSchema = z.object({
   title: z.string().min(1, "Vui lòng nhập tên chương"),
@@ -57,6 +58,9 @@ export default function EditChapterPage() {
   const { mutateAsync: updateChapter } = useUpdateChapter(chapterId);
   const router = useRouter();
 
+  const chapterNumber = chapter?.chapter_number || 1;
+  const isVipEligible = chapterNumber >= 10;
+
   const {
     register,
     handleSubmit,
@@ -83,9 +87,21 @@ export default function EditChapterPage() {
   });
 
   const watchType = watch("type");
+  const watchContent = watch("content") || "";
+  const wordCount = watchContent.replace(/<[^>]*>/g, ' ').trim().split(/\s+/).filter(Boolean).length;
 
   const onSubmit = async (data: ChapterFormValues) => {
     try {
+      if (data.status === "PUBLISHED" && wordCount < 800) {
+        toast.error(`Nội dung chương phải đạt tối thiểu 800 từ để xuất bản (hiện tại có ${wordCount} từ). Bạn có thể Lưu bản nháp để viết tiếp.`);
+        return;
+      }
+
+      if (data.type === "VIP" && !isVipEligible) {
+        toast.error(`Chương thu phí chỉ được áp dụng từ chương 10 trở lên. Chương hiện tại là chương ${chapterNumber}.`);
+        return;
+      }
+
       const payload = {
         title: data.title,
         text_content: data.content,
@@ -95,11 +111,11 @@ export default function EditChapterPage() {
       };
       
       await updateChapter(payload);
-      alert("Cập nhật chương thành công!");
+      toast.success("Cập nhật chương thành công!");
       router.push(`/studio/stories/${storyId}/chapters`);
     } catch (error: any) {
       console.error(error);
-      alert("Lỗi: " + (error.message || "Không thể cập nhật chương"));
+      toast.error(error.response?.data?.message || error.message || "Không thể cập nhật chương");
     }
   };
 
@@ -115,28 +131,40 @@ export default function EditChapterPage() {
             <ArrowLeft className="h-5 w-5" />
           </Button>
         </Link>
-        <h1 className="text-3xl font-light tracking-tight text-white">Sửa chương: {chapter?.title}</h1>
+        <div>
+          <h1 className="text-3xl font-light tracking-tight text-white">Sửa chương: {chapter?.title}</h1>
+          <p className="text-xs font-mono text-zinc-500 mt-1">Chương số: {chapterNumber} • {chapter?.status}</p>
+        </div>
       </div>
 
       <form onSubmit={handleSubmit(onSubmit)}>
         <input type="hidden" {...register("status")} />
         <div className="grid gap-6 md:grid-cols-3">
           <div className="md:col-span-2 space-y-6">
-            <Card className="rounded-none bg-black border-zinc-900">
+            <Card className="rounded-none bg-black border-zinc-900 text-white">
               <CardContent className="p-6 space-y-6">
                 <div className="space-y-2">
-                  <Label htmlFor="title" className="font-mono text-[10px] uppercase tracking-widest text-zinc-500">Tên chương (VD: Chương 1: Khởi đầu)</Label>
+                  <Label htmlFor="title" className="font-mono text-[10px] uppercase tracking-widest text-zinc-400">Tên chương (VD: Chương {chapterNumber}: Khởi đầu)</Label>
                   <Input 
                     id="title" 
                     placeholder="Nhập tên chương..." 
-                    className="rounded-none border-zinc-800 bg-zinc-950 text-white focus-visible:ring-0 focus-visible:border-zinc-500 font-mono text-lg py-6"
+                    className="w-full rounded-none border-zinc-800 bg-zinc-950 !text-white placeholder:text-zinc-500 focus-visible:ring-0 focus-visible:border-zinc-500 font-mono text-lg py-6"
                     {...register("title")} 
                   />
                   {errors.title && <p className="text-[10px] font-mono text-red-500 uppercase">{errors.title.message}</p>}
                 </div>
                 
                 <div className="space-y-2">
-                  <Label className="font-mono text-[10px] uppercase tracking-widest text-zinc-500">Nội dung chương</Label>
+                  <div className="flex items-center justify-between">
+                    <Label className="font-mono text-[10px] uppercase tracking-widest text-zinc-500">Nội dung chương</Label>
+                    <span className={`text-[11px] font-mono px-2 py-0.5 border ${
+                      wordCount >= 800 
+                        ? 'text-emerald-400 border-emerald-500/30 bg-emerald-500/10' 
+                        : 'text-amber-400 border-amber-500/30 bg-amber-500/10'
+                    }`}>
+                      {wordCount} / 800 từ {wordCount >= 800 ? '✓ Đủ điều kiện xuất bản' : `(còn thiếu ${800 - wordCount} từ)`}
+                    </span>
+                  </div>
                   <div className="border border-zinc-800 bg-zinc-950/50">
                     <Controller
                       name="content"
@@ -150,15 +178,20 @@ export default function EditChapterPage() {
                     />
                   </div>
                   {errors.content && <p className="text-[10px] font-mono text-red-500 uppercase">{errors.content.message}</p>}
+                  {wordCount < 800 && (
+                    <p className="text-[11px] font-mono text-amber-500/80">
+                      * Lưu ý: Tối thiểu 1 chương phải có tầm 800 chữ để được duyệt xuất bản. Bạn vẫn có thể Lưu bản nháp bất cứ lúc nào.
+                    </p>
+                  )}
                 </div>
               </CardContent>
             </Card>
           </div>
 
           <div className="space-y-6">
-            <Card className="rounded-none bg-black border-zinc-900">
+            <Card className="rounded-none bg-black border-zinc-900 text-white">
               <CardHeader>
-                <CardTitle className="font-light">Cài đặt Chương</CardTitle>
+                <CardTitle className="font-light text-white">Cài đặt Chương</CardTitle>
               </CardHeader>
               <CardContent className="space-y-6">
                 <div className="space-y-3">
@@ -168,7 +201,13 @@ export default function EditChapterPage() {
                     control={control}
                     render={({ field }) => (
                       <RadioGroup 
-                        onValueChange={field.onChange} 
+                        onValueChange={(val) => {
+                          if (val === 'VIP' && !isVipEligible) {
+                            toast.error(`Chương thu phí chỉ mở từ chương 10 trở lên (chương này là chương ${chapterNumber}).`);
+                            return;
+                          }
+                          field.onChange(val);
+                        }} 
                         value={field.value}
                         className="flex flex-col space-y-3 mt-2"
                       >
@@ -176,18 +215,29 @@ export default function EditChapterPage() {
                           <RadioGroupItem value="FREE" id="free" className="border-zinc-600 text-zinc-300" />
                           <Label htmlFor="free" className="font-mono text-xs uppercase tracking-widest text-zinc-300 cursor-pointer">Miễn phí (FREE)</Label>
                         </div>
-                        <div className="flex items-center space-x-2 border border-amber-500/20 p-3 bg-amber-500/5 hover:border-amber-500/50 transition-colors cursor-pointer">
-                          <RadioGroupItem value="VIP" id="vip" className="border-amber-500 text-amber-500" />
-                          <Label htmlFor="vip" className="font-mono text-xs uppercase tracking-widest text-amber-500 cursor-pointer flex items-center gap-1">
-                            Trình đọc VIP
-                          </Label>
+                        <div className={`flex items-center space-x-2 border p-3 transition-colors ${
+                          isVipEligible 
+                            ? 'border-amber-500/20 bg-amber-500/5 hover:border-amber-500/50 cursor-pointer' 
+                            : 'border-zinc-800/40 bg-zinc-900/20 opacity-50 cursor-not-allowed'
+                        }`}>
+                          <RadioGroupItem value="VIP" id="vip" disabled={!isVipEligible} className="border-amber-500 text-amber-500" />
+                          <div className="flex flex-col">
+                            <Label htmlFor="vip" className={`font-mono text-xs uppercase tracking-widest ${isVipEligible ? 'text-amber-500 cursor-pointer' : 'text-zinc-600'}`}>
+                              Trình đọc VIP
+                            </Label>
+                            {!isVipEligible && (
+                              <span className="text-[9px] font-mono text-zinc-500 mt-0.5">
+                                Khóa (Chỉ mở từ chương 10 trở lên)
+                              </span>
+                            )}
+                          </div>
                         </div>
                       </RadioGroup>
                     )}
                   />
                 </div>
 
-                {watchType === "VIP" && (
+                {watchType === "VIP" && isVipEligible && (
                   <div className="space-y-2 animate-in fade-in slide-in-from-top-2">
                     <Label htmlFor="coinPrice" className="font-mono text-[10px] uppercase tracking-widest text-zinc-500">Giá Coin</Label>
                     <Input 
