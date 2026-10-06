@@ -10,12 +10,17 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
     const res = await fetch(`${API_URL}/reader/stories?limit=1000&sort_by=updated_at`, {
       next: { revalidate: 3600 },
     });
-    const data = await res.json();
-    if (data && data.data && data.data.stories) {
-      stories = data.data.stories;
+    if (res.ok) {
+      const contentType = res.headers.get('content-type');
+      if (contentType && contentType.includes('application/json')) {
+        const data = await res.json();
+        if (data && data.data && Array.isArray(data.data.stories)) {
+          stories = data.data.stories;
+        }
+      }
     }
   } catch (error) {
-    console.error("Failed to fetch stories for sitemap:", error);
+    console.warn("Could not fetch stories for sitemap during build:", error instanceof Error ? error.message : error);
   }
 
   const storyUrls = stories.map((story: any) => ({

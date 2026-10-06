@@ -1,7 +1,8 @@
 import type { NextConfig } from "next";
 
 const nextConfig: NextConfig = {
-  output: 'standalone',
+  // Chỉ kích hoạt standalone cho Docker build, bỏ qua khi deploy trên Vercel
+  ...(process.env.VERCEL ? {} : { output: 'standalone' }),
   /* config options here */
   reactCompiler: true,
   async redirects() {
